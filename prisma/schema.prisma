@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Participante {
+  id                 Int      @id @default(autoincrement())
+  tipo               String   // "alumno" | "docente"
+  nombre             String
+  apellidoPaterno    String   @map("apellido_paterno")
+  apellidoMaterno    String?  @map("apellido_materno")
+  email              String   @unique
+  telefono           String?
+  tallaCamisaId      Int?     @map("talla_camisa_id")
+  tallaPlayeraId     Int?     @map("talla_playera_id")
+  requiereConstancia Boolean  @default(false) @map("requiere_constancia")
+  estadoRegistro     String   @default("pendiente") @map("estado_registro")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  tallaCamisa  Talla? @relation("camisa", fields: [tallaCamisaId], references: [id])
+  tallaPlayera Talla? @relation("playera", fields: [tallaPlayeraId], references: [id])
+  alumno       Alumno?
+  docente      Docente?
+
+  @@index([tipo])
+  @@index([estadoRegistro])
+  @@map("participantes")
+}
+
+model Alumno {
+  id             Int    @id @default(autoincrement())
+  participanteId Int    @unique @map("participante_id")
+  matricula      String @unique
+  carrera        String @default("Ingeniería en Sistemas Computacionales")
+  semestre       Int
+
+  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+
+  @@index([semestre])
+  @@map("alumnos")
+}
+
+model Docente {
+  id             Int     @id @default(autoincrement())
+  participanteId Int     @unique @map("participante_id")
+  numeroEmpleado String? @map("numero_empleado")
+  departamento   String
+  academia       String?
+
+  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+
+  @@map("docentes")
+}
+
+model Talla {
+  id     Int     @id @default(autoincrement())
+  nombre String  @unique
+  orden  Int
+  activa Boolean @default(true)
+
+  participantesCamisa  Participante[] @relation("camisa")
+  participantesPlayera Participante[] @relation("playera")
+
+  @@map("tallas")
+}
+
+model Administrador {
+  id           Int      @id @default(autoincrement())
+  usuario      String   @unique
+  passwordHash String   @map("password_hash")
+  nombre       String
+  rol          String   @default("lider_generacion")
+  semestre     Int?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("administradores")
+}
+
+model Configuracion {
+  id          Int     @id @default(autoincrement())
+  clave       String  @unique
+  valor       String
+  descripcion String?
+
+  @@map("configuracion")
+}

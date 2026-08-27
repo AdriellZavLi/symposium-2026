@@ -1,69 +1,63 @@
-import Image from "next/image";
+"use client";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/configuracion')
+      .then(res => res.json())
+      .then(data => setConfig(data))
+      .catch(() => setConfig({
+         eventoFecha: "15 de Octubre, 2026",
+         eventoLugar: "Centro de Convenciones",
+         registroAbierto: true
+      }));
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="flex flex-col min-h-[calc(100vh-130px)]">
+      <section className="hero-gradient flex-grow flex flex-col items-center justify-center text-white p-6 relative overflow-hidden">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob"></div>
+        <div className="absolute top-10 right-10 w-32 h-32 bg-violet-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob animation-delay-2000"></div>
+        
+        <div className="z-10 text-center max-w-3xl">
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-400">
+            SYMPOSIUM 2026
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <h2 className="text-2xl md:text-4xl font-semibold mb-6 text-slate-200">
+            Synectis — Diseñando el Mañana
+          </h2>
+          <div className="text-lg md:text-xl text-slate-300 mb-8 font-light">
+            <p>{config?.eventoFecha || "Cargando fecha..."}</p>
+            <p>{config?.eventoLugar || "Cargando lugar..."}</p>
+          </div>
+          <p className="text-base md:text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
+            El evento más grande de Ingeniería en Sistemas Computacionales. Únete a expertos, estudiantes y profesionales para explorar las tendencias que darán forma al futuro tecnológico.
           </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {config?.registroAbierto === false ? (
+              <span className="bg-red-500 text-white px-8 py-3 rounded-full font-bold shadow-lg">
+                Registros Cerrados
+              </span>
+            ) : (
+              <Link href="/registro" className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1">
+                Registrarme
+              </Link>
+            )}
+            <Link href="/consulta" className="border-2 border-indigo-400 text-indigo-100 hover:bg-indigo-900/50 px-8 py-3 rounded-full font-bold transition-all">
+              Consultar mi registro
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+      <div className="bg-slate-900 text-center py-4">
+        <Link href="/admin/login" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">
+          Acceso administrativo
+        </Link>
+      </div>
     </div>
   );
 }
