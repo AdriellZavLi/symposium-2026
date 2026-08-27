@@ -29,10 +29,7 @@ export default function Home() {
           <h2 className="text-2xl md:text-4xl font-semibold mb-6 text-slate-200">
             Synectis — Diseñando el Mañana
           </h2>
-          <div className="text-lg md:text-xl text-slate-300 mb-8 font-light">
-            <p>{config?.eventoFecha || "Cargando fecha..."}</p>
-            <p>{config?.eventoLugar || "Cargando lugar..."}</p>
-          </div>
+
           <p className="text-base md:text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
             El evento más grande de Ingeniería en Sistemas Computacionales. Únete a expertos, estudiantes y profesionales para explorar las tendencias que darán forma al futuro tecnológico.
           </p>
