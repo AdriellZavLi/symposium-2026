@@ -19,24 +19,10 @@ export const TALLAS_VALIDAS = ["CH", "M", "G", "XG", "XXG"] as const;
 
 // --- Schema: Registro de alumno ---
 export const registroAlumnoSchema = z.object({
-  nombre: z
-    .string()
-    .min(2, "El nombre debe tener al menos 2 caracteres")
-    .max(100, "El nombre no debe exceder 100 caracteres")
-    .trim(),
-  apellidoPaterno: z
-    .string()
-    .min(2, "El apellido paterno debe tener al menos 2 caracteres")
-    .max(100, "El apellido paterno no debe exceder 100 caracteres")
-    .trim(),
-  apellidoMaterno: z
-    .string()
-    .max(100, "El apellido materno no debe exceder 100 caracteres")
-    .trim()
-    .optional()
-    .or(z.literal("")),
+  matricula: z.string().min(1, "El número de control es requerido").trim(),
   email: z
     .string()
+    .min(1, "El correo electrónico es requerido")
     .email("El correo electrónico no tiene un formato válido")
     .max(200, "El correo no debe exceder 200 caracteres")
     .trim()
@@ -44,22 +30,12 @@ export const registroAlumnoSchema = z.object({
   telefono: z
     .string()
     .min(10, "El teléfono debe tener al menos 10 dígitos")
-    .max(15, "El teléfono no debe exceder 15 dígitos")
+    .max(20, "El teléfono no debe exceder 20 caracteres")
     .regex(/^[\d\s\-\+\(\)]+$/, "El teléfono solo debe contener números")
-    .trim()
-    .optional()
-    .or(z.literal("")),
-  matricula: matriculaSchema,
-  semestre: z
-    .number()
-    .int()
-    .refine(
-      (val) => SEMESTRES_VALIDOS.includes(val as (typeof SEMESTRES_VALIDOS)[number]),
-      "El semestre seleccionado no es válido"
-    ),
-  tallaCamisa: z.string().min(1, "Debes seleccionar una talla de camisa"),
+    .trim(),
   tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera"),
-  requiereConstancia: z.boolean().default(false),
+  tallaCamisa: z.string().min(1, "Debes seleccionar una talla de camisa"),
+  requiereConstancia: z.boolean().default(true),
 });
 
 // --- Schema: Registro de docente ---
@@ -82,6 +58,7 @@ export const registroDocenteSchema = z.object({
     .or(z.literal("")),
   email: z
     .string()
+    .min(1, "El correo electrónico es requerido")
     .email("El correo electrónico no tiene un formato válido")
     .max(200, "El correo no debe exceder 200 caracteres")
     .trim()
@@ -89,31 +66,12 @@ export const registroDocenteSchema = z.object({
   telefono: z
     .string()
     .min(10, "El teléfono debe tener al menos 10 dígitos")
-    .max(15, "El teléfono no debe exceder 15 dígitos")
+    .max(20, "El teléfono no debe exceder 20 caracteres")
     .regex(/^[\d\s\-\+\(\)]+$/, "El teléfono solo debe contener números")
-    .trim()
-    .optional()
-    .or(z.literal("")),
-  numeroEmpleado: z
-    .string()
-    .max(20, "El número de empleado no debe exceder 20 caracteres")
-    .trim()
-    .optional()
-    .or(z.literal("")),
-  departamento: z
-    .string()
-    .min(2, "El departamento debe tener al menos 2 caracteres")
-    .max(200, "El departamento no debe exceder 200 caracteres")
     .trim(),
-  academia: z
-    .string()
-    .max(200, "La academia no debe exceder 200 caracteres")
-    .trim()
-    .optional()
-    .or(z.literal("")),
-  tallaCamisa: z.string().min(1, "Debes seleccionar una talla de camisa"),
   tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera"),
-  requiereConstancia: z.boolean().default(false),
+  tallaCamisa: z.string().min(1, "Debes seleccionar una talla de camisa"),
+  requiereConstancia: z.boolean().default(true),
 });
 
 // --- Schema: Login ---

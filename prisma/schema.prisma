@@ -17,7 +17,7 @@ model Participante {
   telefono           String?
   tallaCamisaId      Int?     @map("talla_camisa_id")
   tallaPlayeraId     Int?     @map("talla_playera_id")
-  requiereConstancia Boolean  @default(false) @map("requiere_constancia")
+  requiereConstancia Boolean  @default(true) @map("requiere_constancia")
   estadoRegistro     String   @default("pendiente") @map("estado_registro")
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
@@ -49,7 +49,7 @@ model Docente {
   id             Int     @id @default(autoincrement())
   participanteId Int     @unique @map("participante_id")
   numeroEmpleado String? @map("numero_empleado")
-  departamento   String
+  departamento   String? @default("Docente")
   academia       String?
 
   participante Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)

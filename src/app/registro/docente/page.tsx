@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { registroDocenteSchema } from '@/lib/validations';
 
 export default function RegistroDocente() {
   const router = useRouter();
@@ -17,12 +16,8 @@ export default function RegistroDocente() {
     apellidoMaterno: "",
     email: "",
     telefono: "",
-    numeroEmpleado: "",
-    departamento: "",
-    academia: "",
-    tallaCamisa: "",
     tallaPlayera: "",
-    requiereConstancia: false
+    tallaCamisa: "",
   });
 
   useEffect(() => {
@@ -33,10 +28,9 @@ export default function RegistroDocente() {
   }, []);
 
   const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target;
-    const val = type === 'checkbox' ? checked : value;
-    setFormData(prev => ({ ...prev, [name]: val }));
-    if(errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,20 +38,41 @@ export default function RegistroDocente() {
     setErrorMsg("");
     setErrors({});
     
+    const newErrors: Record<string, string> = {};
+    if (!formData.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
+    if (!formData.apellidoPaterno.trim()) newErrors.apellidoPaterno = "El apellido paterno es obligatorio";
+    if (!formData.email.trim()) newErrors.email = "El correo electrónico es obligatorio";
+    if (!formData.telefono.trim()) newErrors.telefono = "El teléfono es obligatorio";
+    if (!formData.tallaPlayera) newErrors.tallaPlayera = "Debes seleccionar una talla de playera";
+    if (!formData.tallaCamisa) newErrors.tallaCamisa = "Debes seleccionar una talla de camisa";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const validData = registroDocenteSchema.parse(formData);
-      
-      setLoading(true);
       const res = await fetch('/api/registro/docente', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validData)
+        body: JSON.stringify({
+          nombre: formData.nombre.trim(),
+          apellidoPaterno: formData.apellidoPaterno.trim(),
+          apellidoMaterno: formData.apellidoMaterno.trim() || undefined,
+          email: formData.email.trim(),
+          telefono: formData.telefono.trim(),
+          tallaPlayera: formData.tallaPlayera,
+          tallaCamisa: formData.tallaCamisa,
+          requiereConstancia: true,
+        })
       });
       
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 409) {
-          setErrorMsg("El correo ya está registrado.");
+          setErrorMsg("Este correo electrónico ya está registrado.");
         } else {
           setErrorMsg(data.error || "Ocurrió un error al registrar.");
         }
@@ -66,103 +81,113 @@ export default function RegistroDocente() {
       }
       
       router.push('/registro/exitoso?tipo=docente');
-    } catch (error: any) {
-      if (error.name === "ZodError") {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err: any) => {
-          if (err.path[0]) fieldErrors[err.path[0]] = err.message;
-        });
-        setErrors(fieldErrors);
-      } else {
-        setErrorMsg("Error de validación o conexión.");
-      }
+    } catch {
+      setErrorMsg("Error de conexión al servidor.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 py-8">
+    <div className="max-w-2xl mx-auto p-4 py-8">
       <Link href="/registro" className="text-indigo-600 hover:text-indigo-800 font-medium mb-6 inline-block">
         &larr; Volver
       </Link>
       
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">Registro de Docente</h1>
+      <h1 className="text-3xl font-bold text-slate-900 mb-2">Registro de Docente</h1>
+      <p className="text-slate-500 mb-8">Ingresa tus datos personales y selecciona tu talla.</p>
       
       {errorMsg && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
           <p>{errorMsg}</p>
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Sección 1: Información Personal</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <h2 className="text-xl font-semibold text-slate-800 border-b pb-2">Información Personal</h2>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre *</label>
-              <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre(s) *</label>
+              <input
+                type="text"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              />
               {errors.nombre && <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>}
             </div>
+            
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Apellido Paterno *</label>
-              <input type="text" name="apellidoPaterno" value={formData.apellidoPaterno} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Primer Apellido *</label>
+              <input
+                type="text"
+                name="apellidoPaterno"
+                value={formData.apellidoPaterno}
+                onChange={handleChange}
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              />
               {errors.apellidoPaterno && <p className="text-red-500 text-xs mt-1">{errors.apellidoPaterno}</p>}
             </div>
+            
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Apellido Materno</label>
-              <input type="text" name="apellidoMaterno" value={formData.apellidoMaterno} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
-              {errors.apellidoMaterno && <p className="text-red-500 text-xs mt-1">{errors.apellidoMaterno}</p>}
+              <label className="block text-sm font-medium text-slate-700 mb-1">Segundo Apellido</label>
+              <input
+                type="text"
+                name="apellidoMaterno"
+                value={formData.apellidoMaterno}
+                onChange={handleChange}
+                placeholder="Opcional"
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico *</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="ejemplo@docente.edu.mx"
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
-              <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono *</label>
+              <input
+                type="tel"
+                name="telefono"
+                value={formData.telefono}
+                onChange={handleChange}
+                placeholder="10 dígitos"
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              />
               {errors.telefono && <p className="text-red-500 text-xs mt-1">{errors.telefono}</p>}
             </div>
           </div>
         </div>
-        
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Sección 2: Información Laboral</h2>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <h2 className="text-xl font-semibold text-slate-800 border-b pb-2">Selección de Tallas</h2>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Número de Empleado</label>
-              <input type="text" name="numeroEmpleado" value={formData.numeroEmpleado} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
-              {errors.numeroEmpleado && <p className="text-red-500 text-xs mt-1">{errors.numeroEmpleado}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Departamento/Área *</label>
-              <input type="text" name="departamento" value={formData.departamento} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
-              {errors.departamento && <p className="text-red-500 text-xs mt-1">{errors.departamento}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Academia</label>
-              <input type="text" name="academia" value={formData.academia} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
-              {errors.academia && <p className="text-red-500 text-xs mt-1">{errors.academia}</p>}
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Sección 3: Información del Symposium</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Camisa *</label>
-              <select name="tallaCamisa" value={formData.tallaCamisa} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="">Seleccione una talla</option>
-                {tallas.map((t) => (
-                  <option key={t.id} value={t.nombre}>{t.nombre}</option>
-                ))}
-              </select>
-              {errors.tallaCamisa && <p className="text-red-500 text-xs mt-1">{errors.tallaCamisa}</p>}
-            </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Playera *</label>
-              <select name="tallaPlayera" value={formData.tallaPlayera} onChange={handleChange} className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+              <select
+                name="tallaPlayera"
+                value={formData.tallaPlayera}
+                onChange={handleChange}
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              >
                 <option value="">Selecciona una talla</option>
                 {tallas.map((t) => (
                   <option key={t.id} value={t.nombre}>{t.nombre}</option>
@@ -170,17 +195,32 @@ export default function RegistroDocente() {
               </select>
               {errors.tallaPlayera && <p className="text-red-500 text-xs mt-1">{errors.tallaPlayera}</p>}
             </div>
-            <div className="col-span-1 md:col-span-2 flex items-center mt-4">
-              <input type="checkbox" name="requiereConstancia" id="requiereConstancia" checked={formData.requiereConstancia} onChange={handleChange} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-              <label htmlFor="requiereConstancia" className="ml-2 block text-sm text-slate-700">
-                Requiero constancia de participación
-              </label>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Camisa *</label>
+              <select
+                name="tallaCamisa"
+                value={formData.tallaCamisa}
+                onChange={handleChange}
+                className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                required
+              >
+                <option value="">Selecciona una talla</option>
+                {tallas.map((t) => (
+                  <option key={t.id} value={t.nombre}>{t.nombre}</option>
+                ))}
+              </select>
+              {errors.tallaCamisa && <p className="text-red-500 text-xs mt-1">{errors.tallaCamisa}</p>}
             </div>
           </div>
         </div>
         
         <div className="flex justify-end">
-          <button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors disabled:opacity-50"
+          >
             {loading ? "Procesando..." : "Completar Registro"}
           </button>
         </div>

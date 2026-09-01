@@ -457,27 +457,36 @@ async function main() {
 
   // Admin accounts
   const admins = [
-    { username: 'admin', password: 'Symposium2026!', role: 'super_admin', semestre: null },
-    { username: 'lider1', password: 'Lider1_2026', role: 'lider_generacion', semestre: 1 },
-    { username: 'lider3', password: 'Lider3_2026', role: 'lider_generacion', semestre: 3 },
-    { username: 'lider5', password: 'Lider5_2026', role: 'lider_generacion', semestre: 5 },
-    { username: 'lider7', password: 'Lider7_2026', role: 'lider_generacion', semestre: 7 },
-    { username: 'lider9', password: 'Lider9_2026', role: 'lider_generacion', semestre: 9 },
+    { usuario: 'admin', password: 'Symposium2026!', nombre: 'Administrador General', rol: 'super_admin', semestre: null },
+    { usuario: 'lider1', password: 'Lider1_2026', nombre: 'Líder 1° Semestre', rol: 'lider_generacion', semestre: 1 },
+    { usuario: 'lider3', password: 'Lider3_2026', nombre: 'Líder 3° Semestre', rol: 'lider_generacion', semestre: 3 },
+    { usuario: 'lider5', password: 'Lider5_2026', nombre: 'Líder 5° Semestre', rol: 'lider_generacion', semestre: 5 },
+    { usuario: 'lider7', password: 'Lider7_2026', nombre: 'Líder 7° Semestre', rol: 'lider_generacion', semestre: 7 },
+    { usuario: 'lider9', password: 'Lider9_2026', nombre: 'Líder 9° Semestre', rol: 'lider_generacion', semestre: 9 },
   ];
 
   for (const admin of admins) {
     const hashedPassword = await bcrypt.hash(admin.password, 10);
     try {
-      await (prisma as any).usuario.create({
-        data: {
-          username: admin.username,
-          password: hashedPassword,
-          role: admin.role,
-          semestre: admin.semestre
+      await prisma.administrador.upsert({
+        where: { usuario: admin.usuario },
+        update: {
+          passwordHash: hashedPassword,
+          nombre: admin.nombre,
+          rol: admin.rol,
+          semestre: admin.semestre,
+        },
+        create: {
+          usuario: admin.usuario,
+          passwordHash: hashedPassword,
+          nombre: admin.nombre,
+          rol: admin.rol,
+          semestre: admin.semestre,
         }
       });
+      console.log(`✅ Admin ${admin.usuario} listo`);
     } catch (e) {
-      console.log(`Admin ${admin.username} exists`);
+      console.log(`Error con admin ${admin.usuario}:`, e);
     }
   }
 

@@ -24,8 +24,9 @@ export async function POST(request: Request) {
 
     const data = result.data;
 
+    // Check email uniqueness
     const existingEmail = await prisma.participante.findUnique({
-      where: { email: data.email }
+      where: { email: data.email.trim().toLowerCase() }
     });
 
     if (existingEmail) {
@@ -34,30 +35,32 @@ export async function POST(request: Request) {
 
     // Find tallas
     const tallaPlayera = await prisma.talla.findFirst({ where: { nombre: data.tallaPlayera } });
-    const tallaCamisa = data.tallaCamisa ? await prisma.talla.findFirst({ where: { nombre: data.tallaCamisa } }) : null;
-
     if (!tallaPlayera) {
-      return NextResponse.json({ error: 'Talla de playera no encontrada' }, { status: 400 });
+      return NextResponse.json({ error: 'Talla de playera no válida' }, { status: 400 });
     }
 
-    // Transaction
+    const tallaCamisa = await prisma.talla.findFirst({ where: { nombre: data.tallaCamisa } });
+    if (!tallaCamisa) {
+      return NextResponse.json({ error: 'Talla de camisa no válida' }, { status: 400 });
+    }
+
+    // Transaction to create Participante + Docente
     const participante = await prisma.$transaction(async (tx) => {
       const part = await tx.participante.create({
         data: {
-          nombre: data.nombre,
-          apellidoPaterno: data.apellidoPaterno,
-          apellidoMaterno: data.apellidoMaterno,
-          email: data.email,
-          telefono: data.telefono,
+          nombre: data.nombre.trim(),
+          apellidoPaterno: data.apellidoPaterno.trim(),
+          apellidoMaterno: data.apellidoMaterno?.trim() || null,
+          email: data.email.trim().toLowerCase(),
+          telefono: data.telefono.trim(),
           tipo: 'docente',
           tallaPlayeraId: tallaPlayera.id,
-          tallaCamisaId: tallaCamisa?.id,
-          requiereConstancia: data.requiereConstancia,
+          tallaCamisaId: tallaCamisa.id,
+          requiereConstancia: true,
+          estadoRegistro: 'confirmado',
           docente: {
             create: {
-              numeroEmpleado: data.numeroEmpleado,
-              departamento: data.departamento,
-              academia: data.academia
+              departamento: 'Docente',
             }
           }
         }

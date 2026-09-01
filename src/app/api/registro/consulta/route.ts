@@ -8,14 +8,14 @@ export async function GET(request: Request) {
     const matricula = searchParams.get('matricula');
 
     if (!email && !matricula) {
-      return NextResponse.json({ error: 'Debe proporcionar un email o matrícula' }, { status: 400 });
+      return NextResponse.json({ error: 'Debe proporcionar un correo o matrícula' }, { status: 400 });
     }
 
     let participante = null;
 
-    if (email) {
+    if (email && email.trim()) {
       participante = await prisma.participante.findUnique({
-        where: { email },
+        where: { email: email.trim().toLowerCase() },
         include: {
           alumno: true,
           docente: true,
@@ -23,9 +23,9 @@ export async function GET(request: Request) {
           tallaCamisa: true
         }
       });
-    } else if (matricula) {
+    } else if (matricula && matricula.trim()) {
       const alumno = await prisma.alumno.findUnique({
-        where: { matricula },
+        where: { matricula: matricula.trim() },
         include: {
           participante: {
             include: {
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     }
 
     if (!participante) {
-      return NextResponse.json({ error: 'Registro no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Registro no encontrado. Verifica los datos ingresados.' }, { status: 404 });
     }
 
     return NextResponse.json({
