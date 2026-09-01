@@ -18,21 +18,21 @@ export async function GET(request: Request) {
     const talla_playera = searchParams.get('talla_playera');
     const talla_camisa = searchParams.get('talla_camisa');
     const estado = searchParams.get('estado');
-    const buscar = searchParams.get('buscar');
+    const buscar = searchParams.get('buscar')?.trim();
 
     const where: any = {};
-    if (tipo) where.tipo = tipo;
-    if (estado) where.estadoRegistro = estado;
-    if (talla_playera) where.tallaPlayera = { nombre: talla_playera };
-    if (talla_camisa) where.tallaCamisa = { nombre: talla_camisa };
-    if (semestre) where.alumno = { semestre: parseInt(semestre) };
+    if (tipo && tipo !== 'Todos') where.tipo = tipo.toLowerCase();
+    if (estado && estado !== 'Todos') where.estadoRegistro = estado.toLowerCase().replace(' ', '_');
+    if (talla_playera && talla_playera !== 'Todos') where.tallaPlayera = { nombre: talla_playera };
+    if (talla_camisa && talla_camisa !== 'Todos') where.tallaCamisa = { nombre: talla_camisa };
+    if (semestre && semestre !== 'Todos') where.alumno = { semestre: parseInt(semestre) };
     if (buscar) {
       where.OR = [
-        { nombre: { contains: buscar } },
-        { apellidoPaterno: { contains: buscar } },
-        { apellidoMaterno: { contains: buscar } },
-        { email: { contains: buscar } },
-        { alumno: { matricula: { contains: buscar } } }
+        { nombre: { contains: buscar, mode: 'insensitive' } },
+        { apellidoPaterno: { contains: buscar, mode: 'insensitive' } },
+        { apellidoMaterno: { contains: buscar, mode: 'insensitive' } },
+        { email: { contains: buscar, mode: 'insensitive' } },
+        { alumno: { matricula: { contains: buscar, mode: 'insensitive' } } }
       ];
     }
 
@@ -44,24 +44,28 @@ export async function GET(request: Request) {
         tallaPlayera: true,
         tallaCamisa: true
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: [
+        { alumno: { semestre: 'asc' } },
+        { apellidoPaterno: 'asc' },
+        { nombre: 'asc' }
+      ]
     });
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Registros');
 
     sheet.columns = [
-      { header: 'Nombre Completo', key: 'nombre', width: 30 },
+      { header: 'Nombre Completo', key: 'nombre', width: 32 },
       { header: 'Matrícula', key: 'matricula', width: 15 },
-      { header: 'Correo', key: 'correo', width: 25 },
-      { header: 'Teléfono', key: 'telefono', width: 15 },
+      { header: 'Correo', key: 'correo', width: 28 },
+      { header: 'Teléfono', key: 'telefono', width: 16 },
       { header: 'Carrera', key: 'carrera', width: 35 },
       { header: 'Semestre', key: 'semestre', width: 10 },
-      { header: 'Tipo', key: 'tipo', width: 15 },
+      { header: 'Tipo', key: 'tipo', width: 14 },
       { header: 'Talla Camisa', key: 'tallaCamisa', width: 15 },
       { header: 'Talla Playera', key: 'tallaPlayera', width: 15 },
-      { header: 'Constancia', key: 'constancia', width: 15 },
-      { header: 'Estado', key: 'estado', width: 15 }
+      { header: 'Constancia', key: 'constancia', width: 14 },
+      { header: 'Estado', key: 'estado', width: 16 }
     ];
 
     sheet.getRow(1).eachCell((cell) => {
@@ -71,17 +75,17 @@ export async function GET(request: Request) {
 
     participantes.forEach(p => {
       sheet.addRow({
-        nombre: `${p.nombre} ${p.apellidoPaterno} ${p.apellidoMaterno}`,
-        matricula: p.alumno?.matricula || 'N/A',
-        correo: p.email,
-        telefono: p.telefono,
-        carrera: p.alumno?.carrera || 'N/A',
-        semestre: p.alumno?.semestre || 'N/A',
-        tipo: p.tipo,
-        tallaCamisa: p.tallaCamisa?.nombre || 'N/A',
-        tallaPlayera: p.tallaPlayera?.nombre || 'N/A',
+        nombre: `${p.nombre} ${p.apellidoPaterno} ${p.apellidoMaterno || ''}`.trim(),
+        matricula: p.alumno?.matricula || '-',
+        correo: p.email || '-',
+        telefono: p.telefono || '-',
+        carrera: p.alumno?.carrera || '-',
+        semestre: p.alumno?.semestre ? `${p.alumno.semestre}°` : '-',
+        tipo: p.tipo === 'alumno' ? 'Alumno' : 'Docente',
+        tallaCamisa: p.tallaCamisa?.nombre || 'Sin registrar',
+        tallaPlayera: p.tallaPlayera?.nombre || 'Sin registrar',
         constancia: p.requiereConstancia ? 'Sí' : 'No',
-        estado: p.estadoRegistro
+        estado: p.estadoRegistro === 'sin_registrar' ? 'Sin Registrar' : p.estadoRegistro
       });
     });
 
