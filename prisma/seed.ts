@@ -437,7 +437,7 @@ const students: [number, string, string, string, string][] = [
 
 async function main() {
   console.log('🌱 Iniciando seeder...');
-  
+
   // Tallas
   const tallas = [
     { nombre: 'CH', orden: 1 },
@@ -446,7 +446,7 @@ async function main() {
     { nombre: 'XG', orden: 4 },
     { nombre: 'XXG', orden: 5 },
   ];
-  
+
   for (const talla of tallas) {
     try {
       await (prisma as any).talla.create({ data: talla });
@@ -476,7 +476,7 @@ async function main() {
           semestre: admin.semestre
         }
       });
-    } catch(e) {
+    } catch (e) {
       console.log(`Admin ${admin.username} exists`);
     }
   }
