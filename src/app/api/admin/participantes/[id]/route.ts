@@ -103,8 +103,35 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     const resolvedParams = await params;
     const id = parseInt(resolvedParams.id, 10);
-    await prisma.participante.delete({ where: { id } });
-    return NextResponse.json({ message: 'Eliminado exitosamente' });
+
+    const participante = await prisma.participante.findUnique({
+      where: { id },
+      include: { alumno: true, docente: true }
+    });
+
+    if (!participante) {
+      return NextResponse.json({ error: 'Participante no encontrado' }, { status: 404 });
+    }
+
+    // If it's an alumno, do not delete their record from the pre-loaded 429 list.
+    // Instead, reset their tallas, email, telefono, and set status back to 'sin_registrar'.
+    if (participante.tipo === 'alumno' && participante.alumno) {
+      await prisma.participante.update({
+        where: { id },
+        data: {
+          tallaPlayeraId: null,
+          tallaCamisaId: null,
+          email: null,
+          telefono: null,
+          estadoRegistro: 'sin_registrar',
+        }
+      });
+      return NextResponse.json({ message: 'Registro del alumno restablecido a Sin Registrar exitosamente.' });
+    } else {
+      // If it's a docente, delete the record completely
+      await prisma.participante.delete({ where: { id } });
+      return NextResponse.json({ message: 'Docente eliminado exitosamente.' });
+    }
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });

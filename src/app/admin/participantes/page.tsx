@@ -78,10 +78,15 @@ export default function Participantes() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este registro?')) return;
+  const handleResetOrDelete = async (p: ParticipanteItem) => {
+    const isAlumno = p.tipo === 'alumno';
+    const message = isAlumno 
+      ? `¿Deseas restablecer el registro de ${p.nombre} ${p.apellidoPaterno}? Se limpiarán sus tallas, correo y teléfono, y volverá a estar como "Sin Registrar" para que pueda registrarse de nuevo.`
+      : `¿Deseas eliminar definitivamente el registro del docente ${p.nombre} ${p.apellidoPaterno}?`;
+
+    if (!confirm(message)) return;
     try {
-      const res = await fetch(`/api/admin/participantes/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/participantes/${p.id}`, { method: 'DELETE' });
       if (res.ok) fetchParticipantes(page);
     } catch (error) {
       console.error(error);
@@ -314,12 +319,23 @@ export default function Participantes() {
                           Confirmar
                         </button>
                       )}
-                      <button 
-                        onClick={() => handleDelete(p.id)} 
-                        className="text-xs font-semibold px-2.5 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        Eliminar
-                      </button>
+                      {p.tipo === 'alumno' ? (
+                        <button 
+                          onClick={() => handleResetOrDelete(p)} 
+                          disabled={p.estadoRegistro === 'sin_registrar'}
+                          title={p.estadoRegistro === 'sin_registrar' ? 'Este alumno aún no se ha registrado' : 'Limpiar tallas y volver a Sin Registrar'}
+                          className="text-xs font-semibold px-2.5 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                          Restablecer
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleResetOrDelete(p)} 
+                          className="text-xs font-semibold px-2.5 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
