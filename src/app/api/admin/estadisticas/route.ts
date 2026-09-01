@@ -42,6 +42,8 @@ export async function GET(request: Request) {
     const totalParticipantes = await prisma.participante.count();
     const totalAlumnos = await prisma.participante.count({ where: { tipo: 'alumno' }});
     const totalDocentes = await prisma.participante.count({ where: { tipo: 'docente' }});
+    const sinRegistrar = await prisma.participante.count({ where: { estadoRegistro: 'sin_registrar' }});
+    const registrados = await prisma.participante.count({ where: { estadoRegistro: { not: 'sin_registrar' } }});
     
     const byEstado = await prisma.participante.groupBy({
       by: ['estadoRegistro'],
@@ -75,6 +77,8 @@ export async function GET(request: Request) {
       total: totalParticipantes,
       alumnos: totalAlumnos,
       docentes: totalDocentes,
+      sinRegistrar,
+      registrados,
       confirmados: confirmadosCount,
       porTipo: { alumno: totalAlumnos, docente: totalDocentes },
       porEstado: byEstado.map(e => ({ estado: e.estadoRegistro, count: e._count.id })),

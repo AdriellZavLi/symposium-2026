@@ -1,241 +1,530 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+const students: [number, string, string, string, string][] = [
+  [13, "20100183", "MIGUEL ENRIQUE", "COTO", "GUERRERO"],
+  [13, "20100192", "ALFREDO GIOVANNI", "ENCISO", "SOLIS"],
+  [11, "21100177", "JOSE ROBERTO", "CARRIZALES", ""],
+  [11, "21100186", "JOSE ALEJANDRO", "CUMPIAN", "RAMOS"],
+  [11, "21100202", "DANA JAEL", "GARCIA", "MARTINEZ"],
+  [11, "21100223", "BENNY ALEJANDRO", "HERRERA", "VILLANUEVA"],
+  [11, "21100228", "RODRIGO ARTURO", "LEIJA", "NERIO"],
+  [11, "21100233", "VICTOR ARMANDO", "LUCIO", "HERNANDEZ"],
+  [11, "21100295", "CHRISTHOFER", "SOLIS", "ZAMARRON"],
+  [9, "22100166", "JOHAM", "BARBERENA", "MACHORRO"],
+  [9, "22100167", "ANGEL DAVID", "BAUTISTA", "GOMEZ"],
+  [9, "22100168", "ERICK", "BENITEZ", "CRUZ"],
+  [9, "22100169", "RODRIGO ALEXIS", "BLANCO", "CEJA"],
+  [9, "22100170", "MIGUEL ANGEL", "CABRERA", "GARCIA"],
+  [9, "22100171", "JOSE ARTURO", "CANO", "MARTINEZ"],
+  [9, "22100173", "FRANCISCO BOLIVAR", "CASTAÑEDA", "MORA"],
+  [9, "22100177", "MIGUEL ANGEL", "DAVILA", "SANCHEZ"],
+  [9, "22100178", "MARIANA ELIZABETH", "DE LA CRUZ", "MATA"],
+  [9, "22100179", "ANGELA", "DE LA O", "VILLARREAL"],
+  [9, "22100180", "MIA NASHEILY", "DE LEON", "ESQUIVEL"],
+  [9, "22100181", "ESTRELLA ADAI", "DIAZ", "BARTOLON"],
+  [9, "22100182", "ANGEL NAVILA", "FERNANDEZ", "URIEGAS"],
+  [9, "22100183", "MARIA FERNANDA", "FRANCO", "SALINAS"],
+  [9, "22100185", "DIEGO", "GARCES", "CAVAZOS"],
+  [9, "22100187", "EDUARDO", "GASPAR", "GARCIA"],
+  [9, "22100190", "MANUEL DE JESUS", "GONZALEZ", "MENDOZA"],
+  [9, "22100193", "DANIEL OSVALDO", "GOVEA", "MARTINEZ"],
+  [9, "22100194", "RAUL FELIPE", "GUEVARA", "MUÑOZ"],
+  [9, "22100195", "EMILIO", "HERNANDEZ", "GARCIA"],
+  [9, "22100199", "INGRID ANNETE", "HERNANDEZ", "MONTOYA"],
+  [9, "22100202", "LEONARDO", "JUAREZ", "LOPEZ"],
+  [9, "22100208", "ANGEL JESUS", "MADRID", "OVALLE"],
+  [9, "22100209", "ALEJANDRO", "MARTINEZ", "BERNAL"],
+  [9, "22100213", "ANTONIO GAUBAIN", "ORENDAY", "VAZQUEZ"],
+  [9, "22100215", "CARLOS ANDRES", "OSORIO", "GONZALEZ"],
+  [9, "22100217", "RAMON ALEJANDRO", "PARRA", "PASCUAL"],
+  [9, "22100221", "DUILIO OSWALDO", "RAMIREZ", "CASTILLO"],
+  [9, "22100225", "HUGO", "RANGEL", "MADRIGALES"],
+  [9, "22100226", "SAUL EZEQUIEL", "REYES", "GARCIA"],
+  [9, "22100227", "ANGEL ROGELIO", "RODRIGUEZ", "FERNANDEZ"],
+  [9, "22100234", "JOSE ALBERTO", "SERRANO", "CONTRERAS"],
+  [9, "22100235", "CARLOS RAFAEL", "SOLARES", "GRIJALVA"],
+  [9, "22100238", "JENNIFER JACQUELINE", "VILLATORO", "YUCA"],
+  [9, "22100261", "VANESSA GISELLE", "CADENA", "VELAZQUEZ"],
+  [7, "23100045", "DANIELA GUADALUPE", "VALLEJO", "ESPINOZA"],
+  [7, "23100134", "ERIC", "BALDERAS", "FLORES"],
+  [7, "23100136", "JESUS ISRAEL", "BELTRAN", "HERRERA"],
+  [7, "23100139", "EMMANUEL", "BLANCO", "SAMANIEGO"],
+  [7, "23100141", "DEREK ALEXANDER", "CAMARENA", "ZEQUEIDA"],
+  [7, "23100142", "FERNANDO GUADALUPE", "CAMPOS", "VILLANUEVA"],
+  [7, "23100144", "JOSUE ALEJANDRO", "CASIANO", "VAZQUEZ"],
+  [7, "23100145", "CARLOS HIRAM", "CASTILLO", "ESCOBEDO"],
+  [7, "23100147", "MARCO ANTONIO", "CELIS", "MATA"],
+  [7, "23100148", "HUMBERTO JAVIER", "CEVADUA", "MENDOZA"],
+  [7, "23100150", "EVA GUADALUPE", "CONTRERAS", "ANTUNEZ"],
+  [7, "23100151", "CARLOS EDUARDO", "CONTRERAS", "HERNANDEZ"],
+  [7, "23100155", "ALEXIS", "DUEÑEZ", "MALDONADO"],
+  [7, "23100156", "MIGUEL ANGEL", "ECHARTEA", "RODRIGUEZ"],
+  [7, "23100158", "GUSTAVO ALEJANDRO", "ESPINOZA", "COTO"],
+  [7, "23100161", "HIRAM", "GARCIA", "GUERRA"],
+  [7, "23100162", "ROMAN", "GARCIA", "PIÑA"],
+  [7, "23100163", "JOEL ISAAC", "GARCIA", "MORALES"],
+  [7, "23100169", "KARELY GUADALUPE", "HERNANDEZ", "NAVARRO"],
+  [7, "23100170", "CRISTIAN", "HERNANDEZ", "ZAMORA"],
+  [7, "23100173", "HECTOR AARON", "LEIJA", "ZAVALA"],
+  [7, "23100175", "OSCAR DAVID", "LIRA", "LANDIN"],
+  [7, "23100176", "RICARDO JAVIER", "LOPEZ", "CASTILLO"],
+  [7, "23100177", "YADHIRA", "LUNA", "CARRILLO"],
+  [7, "23100179", "VICTOR MANUEL", "MARTINEZ", "SIFUENTES"],
+  [7, "23100182", "CHRISTIAN", "MEDINA", "CITAL"],
+  [7, "23100185", "DIEGO ALONSO", "MOLINA", "GAYTAN"],
+  [7, "23100188", "ALEJANDRO", "MORCILLO", "MARTINEZ"],
+  [7, "23100189", "ZURIEL", "NARANJO", "BUTRON"],
+  [7, "23100190", "GAEL", "ONOFRE", "GARCÍA"],
+  [7, "23100191", "BERNARDO RAFAEL", "OREA", "SAAVEDRA"],
+  [7, "23100192", "CESAR ABRAHAM", "ORTIZ", "GALVAN"],
+  [7, "23100196", "HERNÁN ANTONIO", "PIÑA", "BUSTOS"],
+  [7, "23100199", "NICOLAS ANTONIO", "PEREZ", "CRUZ"],
+  [7, "23100201", "ANAPAULA", "RENDON", "MONTALVO"],
+  [7, "23100202", "REYNALDO DANIEL", "REYES", "PARRA"],
+  [7, "23100207", "RICARDO", "RODRIGUEZ", "HERNANDEZ"],
+  [7, "23100208", "ALBERTO", "RODRIGUEZ", "LUNA"],
+  [7, "23100211", "VALERIA", "SEGOVIA", "ESPINOZA"],
+  [7, "23100212", "REYNALDO", "SÁNCHEZ", "PÉREZ"],
+  [7, "23100215", "LUIS ANGEL", "TORRES", "ZARATE"],
+  [7, "23100217", "MARIO ESTEBAN", "VAZQUEZ", "AGUILA"],
+  [7, "23100218", "CESAR ALEJANDRO", "VAZQUEZ", "SOTO"],
+  [7, "23100222", "KARLA ASTRID", "VILLA", "VARGAS"],
+  [7, "23100223", "CARLOS EDUARDO", "VILLALOBOS", "AGUILAR"],
+  [7, "23100225", "RAUL ADRIELL", "ZAVALA", "LIRA"],
+  [7, "23100676", "JULIO GAEL", "GONZALEZ", "MALDONADO"],
+  [5, "24100417", "JESUS ANGEL", "PALIZADA", "MOTA"],
+  [5, "24100484", "JOSE MANUEL", "BAILON", "CUEVA"],
+  [5, "24100506", "ELIU EMIR", "FRANCISCO", "JIMENEZ"],
+  [5, "24100507", "DANIEL ALEJANDRO", "HERNÁNDEZ", "MUÑOZ"],
+  [5, "24100510", "GUSTAVO ANGEL", "RICO", "GONZALEZ"],
+  [5, "24100515", "NEYTHAN", "ALVARADO", "DORANTES"],
+  [5, "24100516", "EDGAR", "VILLEGAS", "GARCIA"],
+  [5, "24100522", "LUISA FERNANDA", "MORENO", "SOLIS"],
+  [5, "24100526", "LEONARDO", "LUNA", "MARTINEZ"],
+  [5, "24100530", "SANTIAGO LEON", "HERNÁNDEZ", "SANDOVAL"],
+  [5, "24100540", "MAX EDUARDO ELI", "GUERRA", "FLORES"],
+  [5, "24100543", "ANGEL GABRIEL", "RAMIREZ", "GOMEZ"],
+  [5, "24100550", "ARIANA LIZETH", "HERNANDEZ", "CORTES"],
+  [5, "24100551", "BRYAND MANUEL", "ESPEJO", "REYES"],
+  [5, "24100553", "CARLOS DANIEL", "BARRIOS", "VILLANUEVA"],
+  [5, "24100557", "JESUS ALBERTO", "ZUÑIGA", "CRUZ"],
+  [5, "24100560", "MIGUEL ANGEL", "RAMIREZ", "VALDEZ"],
+  [5, "24100562", "MAURO ANDRES", "LOZANO", "VAZQUEZ"],
+  [5, "24100563", "ANGEL URIEL", "GALLARDO", "VAZQUEZ"],
+  [5, "24100565", "ANGEL ROBERTO", "CARVAJAL", "CASTILLO"],
+  [5, "24100573", "AXEL EMILIANO", "GARCÍA", "VILLASANA"],
+  [5, "24100575", "JORGE DAVID", "ESPINOZA", "DURAN"],
+  [5, "24100579", "ADRIAN", "RAMIREZ", "HERNANDEZ"],
+  [5, "24100584", "ELIAS GADIEL", "ORTIZ", "MARTINEZ"],
+  [5, "24100589", "PRISCILLA HAZEL", "GONZÁLEZ", "JIMÉNEZ"],
+  [5, "24100590", "OMAR", "OLIVO", "GAMEZ"],
+  [5, "24100591", "ANDREA FERNANDA", "HERNÁNDEZ", "ARREDONDO"],
+  [5, "24100598", "RICARDO ADRIAN", "ZARATE", "GALLEGOS"],
+  [5, "24100599", "ADRIAN", "VARGAS", "RAMIREZ"],
+  [5, "24100604", "GABRIELA ISBETH", "PINEDA", "ROJAS"],
+  [5, "24100609", "ADALBERTO", "TOVAR", "SALAZAR"],
+  [5, "24100611", "JOSUÉ DANIEL", "MARTÍNEZ", "PÉREZ"],
+  [5, "24100614", "ABELARDO JAHIR", "NOLASCO", "DIAZ"],
+  [5, "24100615", "JORGE ISAAC", "MOTHE", "SALINAS"],
+  [5, "24100616", "CHRISTOPHER ELIYAHÚ", "RIVERO", "ALBA"],
+  [5, "24100617", "MANUEL ALEJANDRO", "SOSA", "DELGADO"],
+  [5, "24100618", "JOAQUIN", "GUEVARA", "LOPEZ"],
+  [5, "24100620", "DAVID", "ROSALES", "CASTRO"],
+  [5, "24100629", "DIEGO BENITO", "GARCIA", "GUZMAN"],
+  [5, "24100630", "ALBERTO", "DEL BOSQUE", "GARCIA"],
+  [5, "24100632", "EFRAIN", "CEPEDA", "NUÑEZ"],
+  [5, "24100633", "JAHAZIEL", "GALLEGOS", "RAMOS"],
+  [5, "24100635", "NESTOR DANIEL", "LOPEZ", "YEPEZ"],
+  [5, "24100637", "MIGUEL IVAN", "RODRIGUEZ", "TEJADA"],
+  [5, "24100638", "KARLA MARGARITA", "HURTADO", "MUÑIZ"],
+  [5, "24100642", "PAOLA BRETANIA HAZEL", "ROLDAN", "VELÁZQUEZ"],
+  [5, "24100643", "LEONARDO", "GARZA", "RIVERA"],
+  [5, "24100645", "JOSE EDUARDO", "AGUIRRE", "HERRERA"],
+  [5, "24100657", "PERLA", "DURAN", "GUILLEN"],
+  [5, "24100659", "ARIANA LYNETH", "ZAVALA", "MONZON"],
+  [5, "24100660", "MARIANA ITZEL", "ELIZONDO", "PALAFOX"],
+  [5, "24100664", "ALEJANDRO", "ORTIZ", "HERNANDEZ"],
+  [5, "24100666", "JESUS ADRIAN", "VELAZQUEZ", "COAZOZON"],
+  [5, "24100667", "MANUEL KARIM", "CAMARILLO", "ROSALES"],
+  [5, "24100668", "JESUS ALBERTO", "RODRÍGUEZ", "TORRES"],
+  [5, "24100670", "LEONEL OSWALDO", "GONZALEZ", "HURTADO"],
+  [5, "24100676", "YRVIN OSWALDO", "OLAVARRIA", "SEGURA"],
+  [5, "24100677", "ANGEL EDUARDO", "VILLANUEVA", "GUERRERO"],
+  [5, "24100681", "FERNANDO ISRAEL", "TERÁN", "LARA"],
+  [5, "24100683", "JORGE IGNACIO", "MARTINEZ", "PEÑUÑERE"],
+  [5, "24100685", "ALONSO YAHIR", "RUELAS", "NÚÑEZ"],
+  [5, "24100686", "JUNIOR ROBERTO", "GARCIA", "BAEZ"],
+  [5, "24100691", "NANCY ARIZAI", "OCAMPO", "ESCOBAR"],
+  [5, "24100693", "GAEL ALEJANDRO", "CERVANTES", "GÓMEZ"],
+  [5, "24100702", "KARIME YAMILET", "HERNANDEZ", "DIAZ"],
+  [5, "24100722", "LUIS OSWALDO", "NIETO", "DIAZ"],
+  [5, "24100725", "ALBERTO DAMIAN", "GONZALEZ", "HUERTA"],
+  [5, "24100732", "DAVID SEBASTIAN", "MARTINEZ", "SOLIS"],
+  [5, "24100750", "JOSE LUIS", "AYALA", "GARZA"],
+  [5, "24100762", "ALEJANDRO", "GARCIA", "BENITEZ"],
+  [5, "24100763", "ESTEFANIA", "ORTEGON", "DOMINGUEZ"],
+  [5, "24100791", "LUCIO EMILIANO", "SALVADOR", "MADERA"],
+  [5, "24100792", "CESAR DOMINGO", "GALLEGOS", "CERVANTES"],
+  [5, "24100843", "GERARDO", "ROMERO", "DE LA CRUZ"],
+  [3, "25100346", "EDGAR MICHEL", "GUERRERO", "MÁRQUEZ"],
+  [3, "25100399", "BRANDOL DE JESUS", "AVILA", "GOMEZ"],
+  [3, "25100404", "ALEJANDRO", "CAMPECHANO", "DOMINGUEZ"],
+  [3, "25100407", "JUAN PABLO", "COLOMO", "MARINA"],
+  [3, "25100408", "RONALDO", "HERNÁNDEZ", "REYES"],
+  [3, "25100424", "JEAN CARLOS", "CARVAJAL", "FLORES"],
+  [3, "25100427", "ÁNGEL ISMAEL", "GALLARDO", "GALVÁN"],
+  [3, "25100434", "HUMBERTO JAVIER", "HERNÁNDEZ", "COVARRUBIAS"],
+  [3, "25100436", "SANTIAGO", "CASTAÑEDA", "GUILLEN"],
+  [3, "25100437", "ESTEBAN NICOLAS", "CHAVEZ", "MONTES"],
+  [3, "25100439", "FRANCISCO ADRIAN", "GALLEGOS", "GAMEZ"],
+  [3, "25100440", "MIGUEL", "DEL ANGEL", "SANTIAGO"],
+  [3, "25100443", "OSCAR ANTONIO", "GONZALEZ", "GAMBOA"],
+  [3, "25100444", "ALAN", "CALZADA", "MARTINEZ"],
+  [3, "25100445", "DAMARIS ARISAI", "COLORADO", "RODRIGUEZ"],
+  [3, "25100447", "LEONARDO", "HERNANDEZ", "REYES"],
+  [3, "25100448", "LUIS MANUEL", "GARCIA", "AGUILAR"],
+  [3, "25100449", "KAREN GUADALUPE", "GONZAGA", "ORTIZ"],
+  [3, "25100450", "MIGUEL", "ANTONIO", "ISLAS"],
+  [3, "25100451", "TOMAS ANTONIO", "GONZALEZ", "RUIZ"],
+  [3, "25100452", "GUILLERMO", "COMPARAN", "VILLARREAL"],
+  [3, "25100453", "RODRIGO NOÉ", "GÓMEZ", "TESILLOS"],
+  [3, "25100454", "JOSÉ RAÚL", "GARCÍA", "DOMÍNGUEZ"],
+  [3, "25100455", "EMANUEL", "ESPINOZA", "DURAN"],
+  [3, "25100456", "ANGEL DAVID", "FLORES", "ZACARIAS"],
+  [3, "25100458", "JORGE RUBEN", "HERNANDEZ", "NARANJO"],
+  [3, "25100459", "JOSE MIGUEL", "DE LEON", "GAUNA"],
+  [3, "25100462", "KARLA ESTEFANI", "FRANCISCO", "CRUZ"],
+  [3, "25100464", "ANGELA SOFIA", "INTERIAL", "FLORES"],
+  [3, "25100465", "ANGEL ALEJANDRO", "ESCAMILLA", "CID"],
+  [3, "25100466", "ALEXIS ALEJANDRO", "ALVARADO", "DIAZ"],
+  [3, "25100467", "IVÁN EMILIANO", "GARCÍA", "TOVAR"],
+  [3, "25100468", "LUIS EMMANUEL", "OLVERA", "GARCÍA"],
+  [3, "25100473", "ANGEL LEONEL", "BERNAL", "HERNANDEZ"],
+  [3, "25100474", "JORGE ADRIAN", "GARCIA", "ROCHA"],
+  [3, "25100475", "CHRISTIAN ALEJANDRO", "PARTIDA", "MARTÍNEZ"],
+  [3, "25100477", "CARIM ANUAR", "CHÁVEZ", "RIVERA"],
+  [3, "25100478", "JUAN JESÚS", "ESQUIVEL", "RIVERA"],
+  [3, "25100479", "ANGEL GAEL", "CHAVEZ", "RANGEL"],
+  [3, "25100480", "JESSICA MARIBEL", "BERNARDINO", "DÁVILA"],
+  [3, "25100482", "FRANCISCO XAVIER", "CEDILLO", "CORONA"],
+  [3, "25100484", "MARCOS ALEJANDRO", "CANALES", "SÁNCHEZ"],
+  [3, "25100486", "LESLY VIANNEY", "CLEMENTE", "GARCÍA"],
+  [3, "25100487", "SALVADOR", "GOMEZ", "DE LA ROSA"],
+  [3, "25100488", "JOSE ANTONIO", "CASTAÑON", "LOPEZ"],
+  [3, "25100489", "JONATHAN ALEXIS", "CASTILLO", "PALACIOS"],
+  [3, "25100492", "GABRIEL EDUARDO", "BARRERA", "MEDINA"],
+  [3, "25100493", "LUIS ANGEL", "ESTRADA", "SOTO"],
+  [3, "25100494", "REYBER ANIBAL", "OSORIO", "CARRERA"],
+  [3, "25100495", "DANNA", "ORTIZ", "CRISTÓBAL"],
+  [3, "25100496", "ANDREA", "GRIMALDO", "VALERO"],
+  [3, "25100497", "LUIS JAVIER", "OCAMPO", "CRUZ"],
+  [3, "25100499", "ALEJANDRO", "GARCIA", "RESENDEZ"],
+  [3, "25100500", "GILBERTO", "SANCHEZ", "GARCIA"],
+  [3, "25100501", "MIGUEL ÁNGEL", "SOTELO", "CORTÉS"],
+  [3, "25100502", "ASLI SOFÍA", "RIOS", "GALLEGOS"],
+  [3, "25100503", "CARLOS GUILLERMO", "OCHOA", "LUNA"],
+  [3, "25100505", "CARLOS DAMIAN", "OCHOA", "LUNA"],
+  [3, "25100508", "VALERIA", "REYES", "LÓPEZ"],
+  [3, "25100509", "JESUS EDUARDO", "GARZA", "GARCIA"],
+  [3, "25100511", "ENRIQUE ARTURO", "MORENO", "ABARCA"],
+  [3, "25100513", "JOSÉ ALBERTO", "PONCE", "ALVARADO"],
+  [3, "25100515", "ALEXIS ADAN", "OSORIO", "VELÁZQUEZ"],
+  [3, "25100517", "YESSICA YANETH", "FLORES", "MOLINA"],
+  [3, "25100518", "JENIFER", "TORRES", "MIRANDA"],
+  [3, "25100519", "UZZIEL ALBERTO", "VILLAFUERTE", "FLORES"],
+  [3, "25100520", "DIEGO", "YEVERINO", "MANTECON"],
+  [3, "25100521", "ULISES ADERLY", "VALLADARES", "MALDONADO"],
+  [3, "25100522", "LEONARDO", "TORRES", "MENDEZ"],
+  [3, "25100523", "BRAULIO ESAÚ", "RAZO", "RUIZ"],
+  [3, "25100525", "ANGEL RAUL", "TREJO", "LÓPEZ"],
+  [3, "25100526", "LUIS ARMANDO", "SIMON", "DURAN"],
+  [3, "25100527", "JOSE AXEL", "SALAZAR", "DELFIN"],
+  [3, "25100528", "ISAAC ALEJANDRO", "RIVERA", "GARZA"],
+  [3, "25100531", "ENRIQUE YAHIR", "VALLEJO", "FLORES"],
+  [3, "25100532", "CÉSAR ARTURO", "LOZADA", "CAMARILLO"],
+  [3, "25100533", "REGINA", "MEJÍA", "MARQUEZ"],
+  [3, "25100534", "GUSTAVO ADRIAN", "RIVERA", "INFANTE"],
+  [3, "25100535", "RODRIGO", "MENCHACA", "ORTIZ"],
+  [3, "25100540", "GUSTAVO", "ROCHA", "TIJERINA"],
+  [3, "25100542", "JOSE ELI", "RAMÍREZ", "REYES"],
+  [3, "25100543", "JOSÉ DE JESÚS", "LÓPEZ", "ALCALÁ"],
+  [3, "25100544", "SAÚL ALEJANDRO", "MARTINEZ", "MARTINEZ"],
+  [3, "25100545", "ISAIAS OSWALDO", "MENDEZ", "HERNANDEZ"],
+  [3, "25100546", "JUAN ANGEL", "MATA", "AMEZCUA"],
+  [3, "25100547", "RODRIGO ZAREK", "LUEVANO", "FLORES"],
+  [3, "25100548", "DIEGO DAREL", "LUEVANO", "FLORES"],
+  [3, "25100549", "JUAN HUMBERTO", "VICENCIO", "VILLEGAS"],
+  [3, "25100550", "AITOR", "ORTEGA", "VARGAS"],
+  [3, "25100551", "DIEGO ALONSO", "RANGEL", "HERNÁNDEZ"],
+  [3, "25100552", "GUSTAVO", "REYES", "CASTRO"],
+  [3, "25100553", "EMMA ISABELA", "SERNA", "AVIÑA"],
+  [3, "25100555", "DILAN ADOLFO", "PINEDA", "MONROY"],
+  [3, "25100556", "ANGEL OZIEL", "PONCE", "SÁNCHEZ"],
+  [3, "25100558", "MIRIAM ALEJANDRA", "MERCADO", "GARCÍA"],
+  [3, "25100559", "AIME PRISCILA", "SANTOS", "VENEGAS"],
+  [3, "25100560", "MARLENE GUADALUPE", "SANTOS", "VENEGAS"],
+  [3, "25100561", "SHARON SOFÍA", "MACARIO", "ARGÜELLES"],
+  [3, "25100562", "GINA MARIANA", "PATIÑO", "SEGURA"],
+  [3, "25100564", "BRAYAN CONCEPCION", "SOLIS", "PEREZ"],
+  [3, "25100567", "DILLAN BRYAND", "LINDE", "FLORES"],
+  [3, "25100569", "LUIS ANGEL", "IRACHETA", "GARCIA"],
+  [3, "25100635", "RODRIGO", "CEBALLOS", "MURO"],
+  [3, "25100658", "JESUS RAFAEL", "PEREZ", "LUVIANO"],
+  [3, "25100685", "JESUS ALBERTO", "RENDON", "SANDOVAL"],
+  [3, "25100686", "ELIDA", "CARRANZA", "DE LOS SANTOS"],
+  [3, "25100687", "JOSÉ ANGEL", "PONCE", "JIMÉNEZ"],
+  [3, "25100715", "JOSÉ ALEJANDRO", "GONZALEZ", "JAIME"],
+  [3, "25100726", "KAREN ITZEL", "GARCIA", "RIOS"],
+  [3, "25100902", "JOSE ERNESTO", "GERMAN", "HUERTA"],
+  [3, "25100911", "LEONEL", "PÉREZ", "RIVERA"],
+  [3, "25100912", "PEDRO ANTONIO", "HERRERA", "GONZÁLEZ"],
+  [3, "25100924", "GERARDO JAIR", "LINARES", "GAYTÁN"],
+  [3, "25100929", "LUIS ANTONIO", "RICO", "AMADOR"],
+  [3, "25100946", "LUIS EDUARDO", "MEJIA", "RUIZ"],
+  [3, "25100961", "SAMUEL ALEJANDRO", "DEL RÍO", "ANGUIANO"],
+  [3, "25100975", "RAFAEL", "BERMEA", "PONCE"],
+  [3, "25100990", "VICTOR MANUEL", "PINEDA", "MONROY"],
+  [3, "25101044", "BÁRBARA", "HERNÁNDEZ", "QUIROGA"],
+  [3, "25101049", "RODOLFO", "VILLANUEVA", "GONZÁLEZ"],
+  [3, "25101069", "JESUS JARED", "SIMENTAL", "SALAZAR"],
+  [3, "25101070", "JUAN PABLO", "CARREÓN", "VILLANUEVA"],
+  [1, "26100209", "SHERLYN", "FRANCISCO", "JIMENEZ"],
+  [1, "26100363", "ADRIANA SARAHI", "DAMASO", "ZAPO"],
+  [1, "26100388", "JULIÁN TADEO", "GUERRERO", "PÉREZ"],
+  [1, "26100403", "ROBERTO CARLOS", "HERNANDEZ", "MORALES"],
+  [1, "26100404", "VALERIA ALEJANDRA", "DELGADO", "MONTES DE OCA"],
+  [1, "26100406", "KEVIN NAHUM", "DEL ANGEL", "ALVARADO"],
+  [1, "26100410", "MARLENE", "HERNANDEZ", "SAN JUAN"],
+  [1, "26100411", "DANAN", "AHUJA", "LAGUNES"],
+  [1, "26100412", "JUAN CARLOS", "CASTAÑÓN", "MARTÍNEZ"],
+  [1, "26100413", "ANDREA MARIA", "GARCIA", "DEL RIO"],
+  [1, "26100414", "CYNTHIA LIZETH", "GARCÍA", "TORRES"],
+  [1, "26100415", "ALEXA", "ALMANZA", "MARTINEZ"],
+  [1, "26100416", "CARLOS ANTONIO", "FLORES", "TERAN"],
+  [1, "26100417", "JORGE ROLANDO", "BARRIOS", "AVILA"],
+  [1, "26100419", "EMMA VALERIA", "FUENTES", "MARTÍNEZ"],
+  [1, "26100421", "RIGOBERTO", "GOMEZ", "TRISTAN"],
+  [1, "26100423", "LUIS FRANCISCO", "ARGUELLES", "MORENO"],
+  [1, "26100424", "AVRIL DENISE", "COBA", "ALATORRE"],
+  [1, "26100425", "LEOBARDO", "COSME", "CUEVAS"],
+  [1, "26100426", "CARLOS FABIAN", "HERRERA", "PALACIOS"],
+  [1, "26100428", "CAMILA YIZEL", "GARCIA", "RUEDA"],
+  [1, "26100429", "FIDEL EMILIANO", "DELGADO", "ESPINOZA"],
+  [1, "26100430", "KYRA", "FUENTES", "MORENO"],
+  [1, "26100431", "MAURO GUILLERMO", "FLORES", "TREJO"],
+  [1, "26100433", "CARLOS DANIEL", "ARREOLA", "MACÍAS"],
+  [1, "26100434", "BRIANA ALEXANDRA", "DEL ANGEL", "HERNANDEZ"],
+  [1, "26100436", "LUIS ELIAN", "CABELLO", "SANCHEZ"],
+  [1, "26100437", "MELANIE CAROLINA", "HERNANDEZ", "ANASTACIO"],
+  [1, "26100438", "DIEGO IVÁN", "GARCIA", "CERVANTES"],
+  [1, "26100440", "MARIO ALBERTO", "CARDENAS", "LIEVANO"],
+  [1, "26100441", "DIEGO PATRICIO", "LEÓN", "ESCOBAR"],
+  [1, "26100443", "JASIEL ALEXANDER", "HERNANDEZ", "ALONSO"],
+  [1, "26100444", "MILAGROS", "CARRERA", "VÁZQUEZ"],
+  [1, "26100445", "LUIS FERNANDO", "BAENA", "RUIZ"],
+  [1, "26100446", "MAIRILY ZOE", "GONZALEZ", "NARANJO"],
+  [1, "26100447", "BRUNO NICOLAS", "BUENDÍA", "DE LA CONCHA"],
+  [1, "26100448", "CARLOS ALBERTO", "FIERROS", "RIVERA"],
+  [1, "26100449", "JUAN MANUEL", "BUENTELLO", "MORENO"],
+  [1, "26100452", "MIGUEL", "CORDERO", "MARTINEZ"],
+  [1, "26100453", "VICTOR", "GUILLEN", "FLORES"],
+  [1, "26100454", "ANGELA MICHELLE", "GALLEGOS", "ALARCON"],
+  [1, "26100455", "ROBERTO ANTONIO", "RODRÍGUEZ", "SOSA"],
+  [1, "26100456", "JORGE RAMON", "TORRES", "LEAL"],
+  [1, "26100458", "MIGUEL ANGEL", "VELAZQUEZ", "RAMIREZ"],
+  [1, "26100459", "PEDRO EMMANUEL", "ARREOLA", "SALAZAR"],
+  [1, "26100460", "BENJAMIN ISRAEL", "GARDUÑO", "HERNANDEZ"],
+  [1, "26100461", "ALEXIA GRETEL", "CRUZ", "ALFARO"],
+  [1, "26100462", "KAREN LIZZETH", "HAM", "VALDEZ"],
+  [1, "26100463", "EMMANUEL", "HERNÁNDEZ", "PALIZADA"],
+  [1, "26100464", "JUAN PABLO", "LARA", "GÓMEZ"],
+  [1, "26100465", "JUAN DAVID", "RODRIGUEZ", "HERRERA"],
+  [1, "26100466", "DALISSA MAYTE", "NAVARRO", "VILLANUEVA"],
+  [1, "26100468", "ROGELIO HERIBERTO", "NICASIO", "MUÑOZ"],
+  [1, "26100471", "CARLOS MIGUEL", "GUERECA", "RAMÍREZ"],
+  [1, "26100473", "DALILA SABRINA", "GAUCIN", "RESENDIZ"],
+  [1, "26100474", "VÍCTOR", "OCAÑA", "MENDOZA"],
+  [1, "26100475", "CIELO BERENICE", "GONZALEZ", "RAMIREZ"],
+  [1, "26100476", "ASHLEY DANIELA", "MURILLO", "REYES"],
+  [1, "26100477", "SAMUEL MOISES", "MENESES", "BAZANA"],
+  [1, "26100478", "LUIS ALBERTO", "LIÑAN", "MORENO"],
+  [1, "26100479", "KEYRA GUADALUPE", "RAMOS", "RODRÍGUEZ"],
+  [1, "26100480", "ELIAS", "PEREZ", "PEREZ"],
+  [1, "26100481", "FERNANDA", "MORENO", "MAGAÑA"],
+  [1, "26100482", "JOSUE OLDEMAR", "LEDESMA", "HERNANDEZ"],
+  [1, "26100483", "EDDIE SAID", "RÍOS", "MARTINEZ"],
+  [1, "26100484", "CARLOS ESTEBAN", "GONZÁLEZ", "VALERA"],
+  [1, "26100485", "NÉSTOR MIGUEL", "PÉREZ", "LUNA"],
+  [1, "26100486", "LUIS ALBERTO", "TEODORO", "HERNÁNDEZ"],
+  [1, "26100487", "JUAN DIEGO", "RODRÍGUEZ", "MARTÍNEZ"],
+  [1, "26100488", "JORGE ISAAC", "MEJÍA", "MONTILLA"],
+  [1, "26100489", "HEIDY KARINA", "OSTO", "HERNANDEZ"],
+  [1, "26100490", "JAN CARLO", "VELAZQUEZ", "GARCIA"],
+  [1, "26100491", "MITCHEL YAHEL", "NAVARRO", "AGUILAR"],
+  [1, "26100492", "BARBARA LORREIN", "MORALES", "SALAS"],
+  [1, "26100493", "DAVID SIMÓN", "LOPEZ", "LOERA"],
+  [1, "26100494", "YAKELIN", "OLVERA", "DE LA CRUZ"],
+  [1, "26100496", "EVELYN JOHNANNA", "REYES", "ANGEL"],
+  [1, "26100497", "ROLANDO AZAEL", "SUAREZ", "ESCOBEDO"],
+  [1, "26100498", "RUBEN", "MORENO", "AGUILAR"],
+  [1, "26100499", "ASHLEY", "RAMÍREZ", "MONTEMAYOR"],
+  [1, "26100500", "MAXIMILIANO", "SERNA", "VILLANUEVA"],
+  [1, "26100501", "JOSUÉ EVIN", "MARTINEZ", "CERVANTES"],
+  [1, "26100502", "CANDY", "SÁNCHEZ", "PINEDA"],
+  [1, "26100503", "GERSON NEFTALÍ", "SÁNCHEZ", "HERNÁNDEZ"],
+  [1, "26100505", "ROBERTO", "VALADEZ", "MORENO"],
+  [1, "26100506", "ALAN DANIEL", "TORRES", "ZÁRATE"],
+  [1, "26100507", "JOSÉ ALEJANDRO", "VELÁZQUEZ", "GARCIA"],
+  [1, "26100508", "MARIANA AIDE", "MATA", "NAJERA"],
+  [1, "26100509", "ALIYAH ASHTON", "BRISEÑO", "HERNANDEZ"],
+  [1, "26100511", "KAREN YERADI", "SARABIA", "VALDEZ"],
+  [1, "26100512", "GABRIEL", "RODRIGUEZ", "GALARZA"],
+  [1, "26100513", "JOSE LUIS", "PUENTE", "SANTILLAN"],
+  [1, "26100514", "ALEXIS ALBERTO", "RODRÍGUEZ", "HERNÁNDEZ"],
+  [1, "26100516", "JUAN CARLOS", "SÁNCHEZ", "LARA"],
+  [1, "26100517", "ISAAC", "NEGRETE", "PEÑA"],
+  [1, "26100518", "MANUEL", "VALVERDE", "AGUILLÓN"],
+  [1, "26100519", "DANIA LILETH", "MORALES", "ZAVALETA"],
+  [1, "26100520", "GABRIEL ZAID", "MUÑOZ", "LIMÓN"],
+  [1, "26100521", "GEORGINA", "SALDÍVAR", "HERRERA"],
+  [1, "26100522", "KARINA ITZEL", "PUENTE", "CRUZ"],
+  [1, "26100523", "KEVIN SANTIAGO", "SALDAÑA", "ZUÑIGA"],
+  [1, "26100525", "ALAN XAVIER", "LOPEZ", "YEPEZ"],
+  [1, "26100526", "DYLAN ELOY", "RODRIGUEZ", "HERNANDEZ"],
+  [1, "26100527", "HECTOR YHAZIDT", "TAPIA", "MORALES"],
+  [1, "26100528", "DAVID", "REYNA", "MARTINEZ"],
+  [1, "26100529", "ELIUD ANDRES", "RODRIGUEZ", "MARTINEZ"],
+  [1, "26100530", "JORGE ALBERTO", "CAMACHO", "RANGEL"],
+  [1, "26100531", "DEVANY ADIELA", "PEÑA", "ARCOS"],
+  [1, "26100534", "YOEL ISAAC", "LUNA", "DORIA"],
+  [1, "26100604", "KEVIN ANTONIO", "CRUZ", "GUZMÁN"],
+  [1, "26100644", "RENHY", "MIL", "ORGANISTA"],
+  [1, "26100674", "YULIANNA LIZETH", "MOLINA", "VELAZQUEZ"],
+  [1, "26100675", "CHRISTOPHER ALEXANDER", "CALIXTRO", "AGUILAR"],
+  [1, "26100715", "ALBERTO PIERCE", "RIVERA", "ESCOBEDO"],
+  [1, "26100759", "MONSERRATH", "MORALES", "COAZOZÓN"],
+  [1, "26100822", "RAFAEL ALEJANDRO", "HERNANDEZ", "ESCAMILLA"],
+  [1, "26100841", "FERNANDO", "SANTIAGO", "DEL ANGEL"],
+  [1, "26100861", "MARCO ANTONIO", "TRUJILLO", "SANCHEZ"],
+  [1, "26100862", "RUDIAN JACIEL", "MORENO", "GUTIERREZ"],
+  [1, "26100869", "ISAÍAS MARTÍN", "ESPINOZA", "CARRASCO"],
+  [1, "26100888", "DAVID EMIR", "FLORES", "TREVIÑO"],
+  [1, "26100892", "LUIS ANGEL", "GARCIA", "MOCTEZUMA"],
+  [1, "26100893", "SHERLYN SARAI", "CEPEDA", "CRUZ"],
+  [1, "26100894", "HUGO GAEL", "TEJADA", "AVILA"],
+  [1, "26100900", "AXEL EDUARDO", "SANCHEZ", "ROJAS"],
+  [1, "26100923", "JORGE ANTONIO", "CASTILLO", "SANTANA"],
+  [1, "26100941", "JOHANA NOEMI", "DELGADO", "HERNANDEZ"],
+  [1, "26100942", "NASHLA EMIRETH", "GARCIA", "VIESCA"],
+  [1, "26100946", "JAIME ALEJANDRO", "AMBRIZ", "REYNA"],
+  [1, "26100958", "JORGE EMILIO", "DILIEGROS", "GARCÍA"],
+  [1, "26100979", "JESUS ANTONIO", "MARTINEZ", "MARTINEZ"],
+  [1, "26100986", "URIEL", "CUELLAR", "MARQUEZ"],
+  [1, "26100996", "DEREK ALBERTO", "ELIZONDO", "SANDOVAL"],
+  [7, "44116302", "MARTIN FERNANDO", "RIERA", ""],
+  [8, "B22380358", "JUAN JOSE", "ALFARO", "HURTADO"],
+  [8, "C21100487", "ISRAEL", "DE LA VEGA", "HERNANDEZ"],
+  [9, "C21100514", "JORGE ARTURO", "MATA", "CAMACHO"],
+  [4, "C22100151", "CESAR", "HERNANDEZ", "AGUIRRE"],
+  [9, "C22100440", "JUAN JAIME", "GUTIERREZ", "GARCIA"],
+  [4, "C24100471", "JAYRA YUNELI", "CAZARES", "ALVAREZ"],
+  [3, "C25100403", "DANTE", "CONTRERAS", "MOLINA"],
+  [2, "C25100865", "ALAN EDUARDO", "CHAVEZ", "OLGUIN"],
+];
+
 async function main() {
-  console.log("🌱 Seeding database...");
-
-  // --- Tallas ---
+  console.log('🌱 Iniciando seeder...');
+  
+  // Tallas
   const tallas = [
-    { nombre: "CH", orden: 1 },
-    { nombre: "M", orden: 2 },
-    { nombre: "G", orden: 3 },
-    { nombre: "XG", orden: 4 },
-    { nombre: "XXG", orden: 5 },
+    { nombre: 'CH', orden: 1 },
+    { nombre: 'M', orden: 2 },
+    { nombre: 'G', orden: 3 },
+    { nombre: 'XG', orden: 4 },
+    { nombre: 'XXG', orden: 5 },
   ];
-
+  
   for (const talla of tallas) {
-    await prisma.talla.upsert({
-      where: { nombre: talla.nombre },
-      update: {},
-      create: talla,
-    });
+    try {
+      await (prisma as any).talla.create({ data: talla });
+    } catch (e) {
+      console.log(`Talla ${talla.nombre} exists`);
+    }
   }
-  console.log("  ✅ Tallas creadas");
 
-  // --- Administradores ---
+  // Admin accounts
   const admins = [
-    {
-      usuario: "admin",
-      password: "Symposium2026!",
-      nombre: "Administrador General",
-      rol: "super_admin",
-      semestre: null,
-    },
-    {
-      usuario: "lider1",
-      password: "Lider1_2026",
-      nombre: "Líder 1° Semestre",
-      rol: "lider_generacion",
-      semestre: 1,
-    },
-    {
-      usuario: "lider3",
-      password: "Lider3_2026",
-      nombre: "Líder 3° Semestre",
-      rol: "lider_generacion",
-      semestre: 3,
-    },
-    {
-      usuario: "lider5",
-      password: "Lider5_2026",
-      nombre: "Líder 5° Semestre",
-      rol: "lider_generacion",
-      semestre: 5,
-    },
-    {
-      usuario: "lider7",
-      password: "Lider7_2026",
-      nombre: "Líder 7° Semestre",
-      rol: "lider_generacion",
-      semestre: 7,
-    },
-    {
-      usuario: "lider9",
-      password: "Lider9_2026",
-      nombre: "Líder 9° Semestre",
-      rol: "lider_generacion",
-      semestre: 9,
-    },
+    { username: 'admin', password: 'Symposium2026!', role: 'super_admin', semestre: null },
+    { username: 'lider1', password: 'Lider1_2026', role: 'lider_generacion', semestre: 1 },
+    { username: 'lider3', password: 'Lider3_2026', role: 'lider_generacion', semestre: 3 },
+    { username: 'lider5', password: 'Lider5_2026', role: 'lider_generacion', semestre: 5 },
+    { username: 'lider7', password: 'Lider7_2026', role: 'lider_generacion', semestre: 7 },
+    { username: 'lider9', password: 'Lider9_2026', role: 'lider_generacion', semestre: 9 },
   ];
 
   for (const admin of admins) {
-    const hash = await bcrypt.hash(admin.password, 12);
-    await prisma.administrador.upsert({
-      where: { usuario: admin.usuario },
-      update: {},
-      create: {
-        usuario: admin.usuario,
-        passwordHash: hash,
-        nombre: admin.nombre,
-        rol: admin.rol,
-        semestre: admin.semestre,
-      },
-    });
+    const hashedPassword = await bcrypt.hash(admin.password, 10);
+    try {
+      await (prisma as any).usuario.create({
+        data: {
+          username: admin.username,
+          password: hashedPassword,
+          role: admin.role,
+          semestre: admin.semestre
+        }
+      });
+    } catch(e) {
+      console.log(`Admin ${admin.username} exists`);
+    }
   }
-  console.log("  ✅ Administradores creados");
 
-  // --- Configuración ---
+  // Configuration entries
   const configs = [
-    {
-      clave: "evento_nombre",
-      valor: "Symposium 2026",
-      descripcion: "Nombre del evento",
-    },
-    {
-      clave: "evento_tematica",
-      valor: "Synectis — Diseñando el Mañana",
-      descripcion: "Temática del evento",
-    },
-    {
-      clave: "evento_fecha",
-      valor: "Por definir",
-      descripcion: "Fecha del evento",
-    },
-    {
-      clave: "evento_lugar",
-      valor: "Por definir",
-      descripcion: "Lugar del evento",
-    },
-    {
-      clave: "evento_descripcion",
-      valor: "Congreso anual de Ingeniería en Sistemas Computacionales.",
-      descripcion: "Descripción breve del evento",
-    },
-    {
-      clave: "registro_abierto",
-      valor: "1",
-      descripcion: "Si el registro está abierto (1) o cerrado (0)",
-    },
+    { clave: 'evento_nombre', valor: 'Symposium 2026' },
+    { clave: 'evento_tematica', valor: 'Synectis — Diseñando el Mañana' },
+    { clave: 'registro_abierto', valor: '1' },
   ];
 
   for (const config of configs) {
-    await prisma.configuracion.upsert({
-      where: { clave: config.clave },
-      update: {},
-      create: config,
-    });
+    try {
+      await (prisma as any).configuracion.create({ data: config });
+    } catch (e) {
+      console.log(`Config ${config.clave} exists`);
+    }
   }
-  console.log("  ✅ Configuración creada");
 
-  // --- Datos de prueba (50+ registros) ---
-  const nombresHombre = [
-    "Carlos", "Miguel", "José", "Juan", "Luis", "Pedro", "Daniel",
-    "Andrés", "Diego", "Fernando", "Roberto", "Ricardo", "Eduardo",
-    "Alejandro", "Francisco", "Javier", "Sergio", "Raúl", "Manuel", "Arturo",
-  ];
-  const nombresMujer = [
-    "María", "Ana", "Laura", "Carmen", "Sofía", "Valentina", "Gabriela",
-    "Fernanda", "Daniela", "Mariana", "Paola", "Andrea", "Lucía",
-    "Isabella", "Camila", "Natalia", "Diana", "Karla", "Vanessa", "Regina",
-  ];
-  const apellidos = [
-    "García", "Hernández", "López", "Martínez", "González", "Rodríguez",
-    "Pérez", "Sánchez", "Ramírez", "Torres", "Flores", "Rivera",
-    "Gómez", "Díaz", "Cruz", "Morales", "Reyes", "Gutiérrez", "Ortiz", "Ruiz",
-  ];
-  const semestres = [1, 3, 5, 7, 9];
-  const tallasNombres = ["CH", "M", "G", "XG", "XXG"];
-  const generaciones: Record<number, string> = { 1: "26", 3: "25", 5: "24", 7: "23", 9: "22" };
-
-  const allTallas = await prisma.talla.findMany();
-  const tallaMap = Object.fromEntries(allTallas.map((t) => [t.nombre, t.id]));
-
-  for (let i = 0; i < 55; i++) {
-    const esMujer = i % 2 === 0;
-    const nombres = esMujer ? nombresMujer : nombresHombre;
-    const nombre = nombres[i % nombres.length];
-    const ap = apellidos[i % apellidos.length];
-    const am = apellidos[(i + 7) % apellidos.length];
-    const sem = semestres[i % semestres.length];
-    const gen = generaciones[sem];
-    const idUnico = String(i + 1).padStart(4, "0");
-    const matricula = `${gen}10${idUnico}`;
-    const email = `al${matricula}@example.edu.mx`;
-    const tallaCamisa = tallasNombres[i % tallasNombres.length];
-    const tallaPlayera = tallasNombres[(i + 2) % tallasNombres.length];
-
+  // Students (Participantes + Alumnos)
+  for (const [semestre, matricula, nombre, apPaterno, apMaterno] of students) {
     try {
       await prisma.participante.create({
         data: {
-          tipo: "alumno",
-          nombre,
-          apellidoPaterno: ap,
-          apellidoMaterno: am,
-          email,
-          telefono: `961${String(1000000 + i).slice(0, 7)}`,
-          tallaCamisaId: tallaMap[tallaCamisa],
-          tallaPlayeraId: tallaMap[tallaPlayera],
-          requiereConstancia: i % 3 === 0,
-          estadoRegistro: i % 5 === 0 ? "pendiente" : "confirmado",
+          tipo: 'alumno',
+          nombre: nombre.trim(),
+          apellidoPaterno: apPaterno.trim(),
+          apellidoMaterno: apMaterno.trim() || null,
+          estadoRegistro: 'sin_registrar',
           alumno: {
             create: {
-              matricula,
-              semestre: sem,
-            },
-          },
-        },
+              matricula: matricula.trim(),
+              semestre,
+            }
+          }
+        }
       });
-    } catch {
-      // Skip duplicates
+    } catch (e) {
+      console.log(`  ⚠️ Skipped duplicate: ${matricula}`);
     }
   }
-  console.log("  ✅ 55 alumnos de prueba creados");
 
-  // Docentes de prueba
-  const deptos = [
-    "Sistemas Computacionales",
-    "Ciencias Básicas",
-    "Desarrollo Académico",
-  ];
-  for (let i = 0; i < 5; i++) {
-    const nombre = nombresHombre[i + 10];
-    const ap = apellidos[i + 10];
-    const email = `docente${i + 1}@example.edu.mx`;
-    try {
-      await prisma.participante.create({
-        data: {
-          tipo: "docente",
-          nombre,
-          apellidoPaterno: ap,
-          apellidoMaterno: apellidos[i + 12],
-          email,
-          telefono: `961${String(2000000 + i).slice(0, 7)}`,
-          tallaCamisaId: tallaMap[tallasNombres[i % tallasNombres.length]],
-          tallaPlayeraId: tallaMap[tallasNombres[(i + 1) % tallasNombres.length]],
-          requiereConstancia: true,
-          estadoRegistro: "confirmado",
-          docente: {
-            create: {
-              numeroEmpleado: `EMP${String(i + 1).padStart(4, "0")}`,
-              departamento: deptos[i % deptos.length],
-              academia: "Ingeniería en Sistemas Computacionales",
-            },
-          },
-        },
-      });
-    } catch {
-      // Skip duplicates
-    }
-  }
-  console.log("  ✅ 5 docentes de prueba creados");
-  console.log("🎉 Seed completado!");
+  console.log('✅ Seeder completado');
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Error en seed:", e);
+    console.error('❌ Error en seed:', e);
     process.exit(1);
   })
   .finally(async () => {

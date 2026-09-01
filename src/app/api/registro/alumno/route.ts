@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { registroAlumnoSchema } from '@/lib/validations';
 
 export async function POST(request: Request) {
   try {
@@ -13,71 +12,48 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const result = registroAlumnoSchema.safeParse(body);
+    const { matricula, tallaPlayera, tallaCamisa } = body;
 
-    if (!result.success) {
-      return NextResponse.json({ 
-        error: 'Datos inválidos', 
-        details: result.error.flatten().fieldErrors 
-      }, { status: 400 });
+    if (!matricula || !tallaPlayera) {
+      return NextResponse.json({ error: 'Matrícula y talla de playera son obligatorios.' }, { status: 400 });
     }
 
-    const data = result.data;
-
-    // Duplicates check
-    const existingMatricula = await prisma.alumno.findUnique({
-      where: { matricula: data.matricula }
+    // Find the student
+    const alumno = await prisma.alumno.findUnique({
+      where: { matricula: matricula.trim() },
+      include: { participante: true }
     });
 
-    if (existingMatricula) {
-      return NextResponse.json({ error: 'Esta matrícula ya se encuentra registrada' }, { status: 409 });
+    if (!alumno) {
+      return NextResponse.json({ error: 'Número de control no encontrado en la lista.' }, { status: 404 });
     }
 
-    const existingEmail = await prisma.participante.findUnique({
-      where: { email: data.email }
-    });
-
-    if (existingEmail) {
-      return NextResponse.json({ error: 'Este correo ya se encuentra registrado' }, { status: 409 });
+    if (alumno.participante.estadoRegistro !== 'sin_registrar') {
+      return NextResponse.json({ error: 'Ya completaste tu registro anteriormente.' }, { status: 409 });
     }
 
     // Find tallas
-    const tallaPlayera = await prisma.talla.findFirst({ where: { nombre: data.tallaPlayera } });
-    const tallaCamisa = data.tallaCamisa ? await prisma.talla.findFirst({ where: { nombre: data.tallaCamisa } }) : null;
-
-    if (!tallaPlayera) {
-      return NextResponse.json({ error: 'Talla de playera no encontrada' }, { status: 400 });
+    const tPlayera = await prisma.talla.findFirst({ where: { nombre: tallaPlayera } });
+    if (!tPlayera) {
+      return NextResponse.json({ error: 'Talla de playera no válida.' }, { status: 400 });
     }
 
-    // Transaction
-    const participante = await prisma.$transaction(async (tx) => {
-      const part = await tx.participante.create({
-        data: {
-          nombre: data.nombre,
-          apellidoPaterno: data.apellidoPaterno,
-          apellidoMaterno: data.apellidoMaterno,
-          email: data.email,
-          telefono: data.telefono,
-          tipo: 'alumno',
-          tallaPlayeraId: tallaPlayera.id,
-          tallaCamisaId: tallaCamisa?.id,
-          requiereConstancia: data.requiereConstancia,
-          alumno: {
-            create: {
-              matricula: data.matricula,
-              carrera: 'Ingeniería en Sistemas Computacionales',
-              semestre: data.semestre,
-            }
-          }
-        }
-      });
-      return part;
+    const tCamisa = tallaCamisa ? await prisma.talla.findFirst({ where: { nombre: tallaCamisa } }) : null;
+
+    // Update the participant with talla and mark as registered
+    await prisma.participante.update({
+      where: { id: alumno.participanteId },
+      data: {
+        tallaPlayeraId: tPlayera.id,
+        tallaCamisaId: tCamisa?.id || null,
+        estadoRegistro: 'pendiente',
+      }
     });
 
-    return NextResponse.json({ 
-      message: 'Registro exitoso', 
-      participanteId: participante.id 
-    }, { status: 201 });
+    return NextResponse.json({
+      message: 'Registro exitoso',
+      nombre: alumno.participante.nombre,
+    }, { status: 200 });
 
   } catch (error) {
     console.error(error);

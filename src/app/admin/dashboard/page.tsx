@@ -49,22 +49,30 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-          <p className="text-sm text-slate-500 mb-1">Total Registrados</p>
+          <p className="text-sm text-slate-500 mb-1">Total Alumnos</p>
           <p className="text-3xl font-bold text-slate-800">{stats?.total || 0}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
-          <p className="text-sm text-slate-500 mb-1">Alumnos</p>
-          <p className="text-3xl font-bold text-slate-800">{stats?.alumnos || 0}</p>
+          <p className="text-sm text-slate-500 mb-1">Registrados</p>
+          <p className="text-3xl font-bold text-slate-800">{stats?.registrados || 0}</p>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-slate-400">
+          <p className="text-sm text-slate-500 mb-1">Sin Registrar</p>
+          <p className="text-3xl font-bold text-slate-800">{stats?.sinRegistrar || 0}</p>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+          <p className="text-sm text-slate-500 mb-1">Confirmados</p>
+          <p className="text-3xl font-bold text-slate-800">{stats?.confirmados || 0}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
           <p className="text-sm text-slate-500 mb-1">Docentes</p>
           <p className="text-3xl font-bold text-slate-800">{stats?.docentes || 0}</p>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
-          <p className="text-sm text-slate-500 mb-1">Confirmados</p>
-          <p className="text-3xl font-bold text-slate-800">{stats?.confirmados || 0}</p>
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+          <p className="text-sm text-slate-500 mb-1">Alumnos</p>
+          <p className="text-3xl font-bold text-slate-800">{stats?.alumnos || 0}</p>
         </div>
       </div>
 

@@ -16,7 +16,7 @@ export default function SeleccionRegistro() {
         <Link href="/registro/alumno" className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-8 flex flex-col items-center text-center border-2 border-transparent hover:border-indigo-100 group">
           <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">🎓</div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2">Alumno</h2>
-          <p className="text-slate-600">Registro para estudiantes inscritos en la carrera.</p>
+          <p className="text-slate-600">Ingresa tu número de control y selecciona tu talla.</p>
         </Link>
         
         <Link href="/registro/docente" className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-8 flex flex-col items-center text-center border-2 border-transparent hover:border-indigo-100 group">

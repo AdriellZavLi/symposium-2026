@@ -13,7 +13,7 @@ model Participante {
   nombre             String
   apellidoPaterno    String   @map("apellido_paterno")
   apellidoMaterno    String?  @map("apellido_materno")
-  email              String   @unique
+  email              String?  @unique
   telefono           String?
   tallaCamisaId      Int?     @map("talla_camisa_id")
   tallaPlayeraId     Int?     @map("talla_playera_id")
