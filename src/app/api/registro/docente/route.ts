@@ -24,24 +24,31 @@ export async function POST(request: Request) {
 
     const data = result.data;
 
-    // Check email uniqueness
-    const existingEmail = await prisma.participante.findUnique({
-      where: { email: data.email.trim().toLowerCase() }
-    });
+    // Check email uniqueness if provided
+    const cleanEmail = data.email?.trim() ? data.email.trim().toLowerCase() : null;
+    if (cleanEmail) {
+      const existingEmail = await prisma.participante.findUnique({
+        where: { email: cleanEmail }
+      });
 
-    if (existingEmail) {
-      return NextResponse.json({ error: 'Este correo ya se encuentra registrado' }, { status: 409 });
+      if (existingEmail) {
+        return NextResponse.json({ error: 'Este correo electrónico ya se encuentra registrado' }, { status: 409 });
+      }
     }
 
-    // Find tallas
+    // Find talla playera polo (obligatoria)
     const tallaPlayera = await prisma.talla.findFirst({ where: { nombre: data.tallaPlayera } });
     if (!tallaPlayera) {
-      return NextResponse.json({ error: 'Talla de playera no válida' }, { status: 400 });
+      return NextResponse.json({ error: 'Talla de playera polo no válida' }, { status: 400 });
     }
 
-    const tallaCamisa = await prisma.talla.findFirst({ where: { nombre: data.tallaCamisa } });
-    if (!tallaCamisa) {
-      return NextResponse.json({ error: 'Talla de camisa no válida' }, { status: 400 });
+    // Find talla camisa de vestir (opcional)
+    let tallaCamisaId: number | null = null;
+    if (data.tallaCamisa?.trim()) {
+      const tc = await prisma.talla.findFirst({ where: { nombre: data.tallaCamisa.trim() } });
+      if (tc) {
+        tallaCamisaId = tc.id;
+      }
     }
 
     // Transaction to create Participante + Docente
@@ -51,11 +58,11 @@ export async function POST(request: Request) {
           nombre: data.nombre.trim(),
           apellidoPaterno: data.apellidoPaterno.trim(),
           apellidoMaterno: data.apellidoMaterno?.trim() || null,
-          email: data.email.trim().toLowerCase(),
-          telefono: data.telefono.trim(),
+          email: cleanEmail,
+          telefono: data.telefono?.trim() || null,
           tipo: 'docente',
           tallaPlayeraId: tallaPlayera.id,
-          tallaCamisaId: tallaCamisa.id,
+          tallaCamisaId: tallaCamisaId,
           requiereConstancia: true,
           estadoRegistro: 'confirmado',
           docente: {

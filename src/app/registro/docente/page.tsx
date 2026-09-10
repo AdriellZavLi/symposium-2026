@@ -41,10 +41,7 @@ export default function RegistroDocente() {
     const newErrors: Record<string, string> = {};
     if (!formData.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
     if (!formData.apellidoPaterno.trim()) newErrors.apellidoPaterno = "El apellido paterno es obligatorio";
-    if (!formData.email.trim()) newErrors.email = "El correo electrónico es obligatorio";
-    if (!formData.telefono.trim()) newErrors.telefono = "El teléfono es obligatorio";
-    if (!formData.tallaPlayera) newErrors.tallaPlayera = "Debes seleccionar una talla de playera";
-    if (!formData.tallaCamisa) newErrors.tallaCamisa = "Debes seleccionar una talla de camisa";
+    if (!formData.tallaPlayera) newErrors.tallaPlayera = "Debes seleccionar una talla de playera polo";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -61,10 +58,10 @@ export default function RegistroDocente() {
           nombre: formData.nombre.trim(),
           apellidoPaterno: formData.apellidoPaterno.trim(),
           apellidoMaterno: formData.apellidoMaterno.trim() || undefined,
-          email: formData.email.trim(),
-          telefono: formData.telefono.trim(),
+          email: formData.email.trim() || undefined,
+          telefono: formData.telefono.trim() || undefined,
           tallaPlayera: formData.tallaPlayera,
-          tallaCamisa: formData.tallaCamisa,
+          tallaCamisa: formData.tallaCamisa.trim() || undefined,
           requiereConstancia: true,
         })
       });
@@ -94,7 +91,7 @@ export default function RegistroDocente() {
       </Link>
       
       <h1 className="text-3xl font-bold text-slate-900 mb-2">Registro de Docente</h1>
-      <p className="text-slate-500 mb-8">Ingresa tus datos personales y selecciona tu talla.</p>
+      <p className="text-slate-500 mb-8">Ingresa tus datos personales y selecciona tus tallas.</p>
       
       {errorMsg && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
@@ -146,7 +143,7 @@ export default function RegistroDocente() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico (opcional)</label>
               <input
                 type="email"
                 name="email"
@@ -154,13 +151,12 @@ export default function RegistroDocente() {
                 onChange={handleChange}
                 placeholder="ejemplo@docente.edu.mx"
                 className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                required
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono (opcional)</label>
               <input
                 type="tel"
                 name="telefono"
@@ -168,7 +164,6 @@ export default function RegistroDocente() {
                 onChange={handleChange}
                 placeholder="10 dígitos"
                 className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                required
               />
               {errors.telefono && <p className="text-red-500 text-xs mt-1">{errors.telefono}</p>}
             </div>
@@ -180,7 +175,7 @@ export default function RegistroDocente() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Playera *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Playera Polo *</label>
               <select
                 name="tallaPlayera"
                 value={formData.tallaPlayera}
@@ -197,20 +192,18 @@ export default function RegistroDocente() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Camisa *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Camisa de Vestir (opcional)</label>
               <select
                 name="tallaCamisa"
                 value={formData.tallaCamisa}
                 onChange={handleChange}
                 className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                required
               >
-                <option value="">Selecciona una talla</option>
+                <option value="">Sin camisa de vestir</option>
                 {tallas.map((t) => (
                   <option key={t.id} value={t.nombre}>{t.nombre}</option>
                 ))}
               </select>
-              {errors.tallaCamisa && <p className="text-red-500 text-xs mt-1">{errors.tallaCamisa}</p>}
             </div>
           </div>
         </div>

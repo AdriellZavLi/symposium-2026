@@ -38,34 +38,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Ya completaste tu registro anteriormente.' }, { status: 409 });
     }
 
-    // Check if email is already taken by another participant
-    const existingEmail = await prisma.participante.findUnique({
-      where: { email: email.trim().toLowerCase() }
-    });
+    // Check if email is provided and already taken by another participant
+    const cleanEmail = email?.trim() ? email.trim().toLowerCase() : null;
+    if (cleanEmail) {
+      const existingEmail = await prisma.participante.findUnique({
+        where: { email: cleanEmail }
+      });
 
-    if (existingEmail && existingEmail.id !== alumno.participanteId) {
-      return NextResponse.json({ error: 'Este correo electrónico ya fue utilizado en otro registro.' }, { status: 409 });
+      if (existingEmail && existingEmail.id !== alumno.participanteId) {
+        return NextResponse.json({ error: 'Este correo electrónico ya fue utilizado en otro registro.' }, { status: 409 });
+      }
     }
 
-    // Find tallas
+    // Find talla playera polo (obligatoria)
     const tPlayera = await prisma.talla.findFirst({ where: { nombre: tallaPlayera } });
     if (!tPlayera) {
-      return NextResponse.json({ error: 'Talla de playera no válida.' }, { status: 400 });
+      return NextResponse.json({ error: 'Talla de playera polo no válida.' }, { status: 400 });
     }
 
-    const tCamisa = await prisma.talla.findFirst({ where: { nombre: tallaCamisa } });
-    if (!tCamisa) {
-      return NextResponse.json({ error: 'Talla de camisa no válida.' }, { status: 400 });
+    // Find talla camisa de vestir (opcional)
+    let tCamisaId: number | null = null;
+    if (tallaCamisa?.trim()) {
+      const tCamisa = await prisma.talla.findFirst({ where: { nombre: tallaCamisa.trim() } });
+      if (tCamisa) {
+        tCamisaId = tCamisa.id;
+      }
     }
 
-    // Update the participant with email, phone, tallas and mark as registered
+    // Update the participant with optional email, phone, tallas and mark as registered
     await prisma.participante.update({
       where: { id: alumno.participanteId },
       data: {
-        email: email.trim().toLowerCase(),
-        telefono: telefono.trim(),
+        email: cleanEmail,
+        telefono: telefono?.trim() || null,
         tallaPlayeraId: tPlayera.id,
-        tallaCamisaId: tCamisa.id,
+        tallaCamisaId: tCamisaId,
         requiereConstancia: true,
         estadoRegistro: 'pendiente',
       }

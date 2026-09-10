@@ -68,10 +68,9 @@ export default function RegistroAlumno() {
     setFieldErrors({});
 
     const newErrors: Record<string, string> = {};
-    if (!email.trim()) newErrors.email = 'El correo electrónico es obligatorio';
-    if (!telefono.trim()) newErrors.telefono = 'El teléfono es obligatorio';
-    if (!tallaPlayera) newErrors.tallaPlayera = 'Debes seleccionar una talla de playera';
-    if (!tallaCamisa) newErrors.tallaCamisa = 'Debes seleccionar una talla de camisa';
+    if (!tallaPlayera) {
+      newErrors.tallaPlayera = 'Debes seleccionar una talla de playera polo';
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setFieldErrors(newErrors);
@@ -86,10 +85,10 @@ export default function RegistroAlumno() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           matricula: alumnoInfo?.matricula,
-          email: email.trim(),
-          telefono: telefono.trim(),
+          email: email.trim() || undefined,
+          telefono: telefono.trim() || undefined,
           tallaPlayera,
-          tallaCamisa,
+          tallaCamisa: tallaCamisa.trim() || undefined,
         })
       });
 
@@ -122,7 +121,7 @@ export default function RegistroAlumno() {
       </Link>
 
       <h1 className="text-3xl font-bold text-slate-900 mb-2">Registro de Alumno</h1>
-      <p className="text-slate-500 mb-8">Ingresa tu número de control para completar tus datos y seleccionar tu talla.</p>
+      <p className="text-slate-500 mb-8">Ingresa tu número de control para completar tu registro y tallas.</p>
 
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
@@ -177,45 +176,19 @@ export default function RegistroAlumno() {
               </div>
               <div>
                 <p className="text-indigo-600 font-medium">Semestre</p>
-                <p className="text-slate-800 font-semibold">{alumnoInfo.semestre}</p>
+                <p className="text-slate-800 font-semibold">{alumnoInfo.semestre}° Semestre</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Paso 2: Datos de Contacto y Tallas</h2>
+            <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Paso 2: Tallas y Contacto</h2>
             <form onSubmit={handleRegistrar} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico *</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: '' })); }}
-                    placeholder="ejemplo@correo.com"
-                    className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                    required
-                  />
-                  {fieldErrors.email && <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono *</label>
-                  <input
-                    type="tel"
-                    value={telefono}
-                    onChange={e => { setTelefono(e.target.value); setFieldErrors(prev => ({ ...prev, telefono: '' })); }}
-                    placeholder="10 dígitos"
-                    className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                    required
-                  />
-                  {fieldErrors.telefono && <p className="text-red-500 text-xs mt-1">{fieldErrors.telefono}</p>}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Playera *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Talla de Playera Polo *
+                  </label>
                   <select
                     value={tallaPlayera}
                     onChange={e => { setTallaPlayera(e.target.value); setFieldErrors(prev => ({ ...prev, tallaPlayera: '' })); }}
@@ -231,19 +204,49 @@ export default function RegistroAlumno() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Talla de Camisa *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Talla de Camisa de Vestir (opcional)
+                  </label>
                   <select
                     value={tallaCamisa}
-                    onChange={e => { setTallaCamisa(e.target.value); setFieldErrors(prev => ({ ...prev, tallaCamisa: '' })); }}
+                    onChange={e => setTallaCamisa(e.target.value)}
                     className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                    required
                   >
-                    <option value="">Selecciona una talla</option>
+                    <option value="">Sin camisa de vestir</option>
                     {tallas.map(t => (
                       <option key={t.id} value={t.nombre}>{t.nombre}</option>
                     ))}
                   </select>
-                  {fieldErrors.tallaCamisa && <p className="text-red-500 text-xs mt-1">{fieldErrors.tallaCamisa}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Correo Electrónico (opcional)
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: '' })); }}
+                    placeholder="ejemplo@correo.com"
+                    className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                  {fieldErrors.email && <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Teléfono (opcional)
+                  </label>
+                  <input
+                    type="tel"
+                    value={telefono}
+                    onChange={e => { setTelefono(e.target.value); setFieldErrors(prev => ({ ...prev, telefono: '' })); }}
+                    placeholder="10 dígitos"
+                    className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                  {fieldErrors.telefono && <p className="text-red-500 text-xs mt-1">{fieldErrors.telefono}</p>}
                 </div>
               </div>
 

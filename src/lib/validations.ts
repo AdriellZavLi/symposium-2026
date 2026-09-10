@@ -22,19 +22,20 @@ export const registroAlumnoSchema = z.object({
   matricula: z.string().min(1, "El número de control es requerido").trim(),
   email: z
     .string()
-    .min(1, "El correo electrónico es requerido")
     .email("El correo electrónico no tiene un formato válido")
     .max(200, "El correo no debe exceder 200 caracteres")
     .trim()
-    .toLowerCase(),
+    .toLowerCase()
+    .optional()
+    .or(z.literal("")),
   telefono: z
     .string()
-    .min(10, "El teléfono debe tener al menos 10 dígitos")
     .max(20, "El teléfono no debe exceder 20 caracteres")
-    .regex(/^[\d\s\-\+\(\)]+$/, "El teléfono solo debe contener números")
-    .trim(),
-  tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera"),
-  tallaCamisa: z.string().min(1, "Debes seleccionar una talla de camisa"),
+    .trim()
+    .optional()
+    .or(z.literal("")),
+  tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera polo"),
+  tallaCamisa: z.string().optional().or(z.literal("")),
   requiereConstancia: z.boolean().default(true),
 });
 
@@ -58,19 +59,20 @@ export const registroDocenteSchema = z.object({
     .or(z.literal("")),
   email: z
     .string()
-    .min(1, "El correo electrónico es requerido")
     .email("El correo electrónico no tiene un formato válido")
     .max(200, "El correo no debe exceder 200 caracteres")
     .trim()
-    .toLowerCase(),
+    .toLowerCase()
+    .optional()
+    .or(z.literal("")),
   telefono: z
     .string()
-    .min(10, "El teléfono debe tener al menos 10 dígitos")
     .max(20, "El teléfono no debe exceder 20 caracteres")
-    .regex(/^[\d\s\-\+\(\)]+$/, "El teléfono solo debe contener números")
-    .trim(),
-  tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera"),
-  tallaCamisa: z.string().min(1, "Debes seleccionar una talla de camisa"),
+    .trim()
+    .optional()
+    .or(z.literal("")),
+  tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera polo"),
+  tallaCamisa: z.string().optional().or(z.literal("")),
   requiereConstancia: z.boolean().default(true),
 });
 
