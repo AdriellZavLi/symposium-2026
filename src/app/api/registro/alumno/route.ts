@@ -56,13 +56,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Talla de playera polo no válida.' }, { status: 400 });
     }
 
-    // Find talla camisa de vestir (opcional)
+    // Find or create talla camisa de vestir por número (opcional)
     let tCamisaId: number | null = null;
     if (tallaCamisa?.trim()) {
-      const tCamisa = await prisma.talla.findFirst({ where: { nombre: tallaCamisa.trim() } });
-      if (tCamisa) {
-        tCamisaId = tCamisa.id;
-      }
+      const numStr = tallaCamisa.trim();
+      const numVal = parseFloat(numStr) || 0;
+      const tCamisa = await prisma.talla.upsert({
+        where: { nombre: numStr },
+        update: {},
+        create: {
+          nombre: numStr,
+          orden: 100 + Math.round(numVal),
+          activa: true,
+        }
+      });
+      tCamisaId = tCamisa.id;
     }
 
     // Update the participant with optional email, phone, tallas and mark as registered

@@ -4,7 +4,7 @@ import prisma from '@/lib/db';
 export async function GET() {
   try {
     const tallas = await prisma.talla.findMany({
-      where: { activa: true },
+      where: { activa: true, orden: { lte: 10 } },
       orderBy: { orden: 'asc' }
     });
     return NextResponse.json(tallas);

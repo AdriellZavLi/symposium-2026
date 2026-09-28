@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       _count: { matricula: true }
     });
 
-    const tallas = await prisma.talla.findMany();
+    const tallas = await prisma.talla.findMany({ orderBy: { orden: 'asc' } });
     const tallasCamisa = await Promise.all(tallas.map(async (t) => {
       const c = await prisma.participante.count({ where: { tallaCamisaId: t.id }});
       return { talla: t.nombre, count: c };
@@ -67,11 +67,13 @@ export async function GET(request: Request) {
 
     const confirmadosCount = byEstado.find(e => e.estadoRegistro === 'confirmado')?._count.id || 0;
 
-    const tallasResumen = tallas.map(t => {
-      const camisasCount = tallasCamisa.find(tc => tc.talla === t.nombre)?.count || 0;
-      const playerasCount = tallasPlayera.find(tp => tp.talla === t.nombre)?.count || 0;
-      return { nombre: t.nombre, camisas: camisasCount, playeras: playerasCount };
-    });
+    const tallasResumen = tallas
+      .map(t => {
+        const camisasCount = tallasCamisa.find(tc => tc.talla === t.nombre)?.count || 0;
+        const playerasCount = tallasPlayera.find(tp => tp.talla === t.nombre)?.count || 0;
+        return { nombre: t.nombre, orden: t.orden, camisas: camisasCount, playeras: playerasCount };
+      })
+      .filter(t => t.orden <= 10 || t.camisas > 0 || t.playeras > 0);
 
     return NextResponse.json({
       total: totalParticipantes,

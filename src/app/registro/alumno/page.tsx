@@ -205,18 +205,25 @@ export default function RegistroAlumno() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Talla de Camisa de Vestir (opcional)
+                    Talla de Camisa de Vestir por Número (opcional)
                   </label>
-                  <select
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="1"
+                    max="60"
+                    list="tallas-camisa-numeros"
                     value={tallaCamisa}
-                    onChange={e => setTallaCamisa(e.target.value)}
+                    onChange={e => { setTallaCamisa(e.target.value); setFieldErrors(prev => ({ ...prev, tallaCamisa: '' })); }}
+                    placeholder="Ej. 34, 36, 38, 40 (o dejar vacío)"
                     className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                  >
-                    <option value="">Sin camisa de vestir</option>
-                    {tallas.map(t => (
-                      <option key={t.id} value={t.nombre}>{t.nombre}</option>
+                  />
+                  <datalist id="tallas-camisa-numeros">
+                    {['28', '30', '32', '34', '36', '38', '40', '42', '44', '46'].map(num => (
+                      <option key={num} value={num}>Talla {num}</option>
                     ))}
-                  </select>
+                  </datalist>
+                  {fieldErrors.tallaCamisa && <p className="text-red-500 text-xs mt-1">{fieldErrors.tallaCamisa}</p>}
                 </div>
               </div>
 

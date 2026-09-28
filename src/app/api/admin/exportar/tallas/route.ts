@@ -12,8 +12,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const tallas = await prisma.talla.findMany();
-    const stats = await Promise.all(tallas.map(async (talla) => {
+    const tallas = await prisma.talla.findMany({ orderBy: { orden: 'asc' } });
+    const allStats = await Promise.all(tallas.map(async (talla) => {
       const camisasAlumno = await prisma.participante.count({ where: { tallaCamisaId: talla.id, tipo: 'alumno' }});
       const camisasDocente = await prisma.participante.count({ where: { tallaCamisaId: talla.id, tipo: 'docente' }});
       const playerasAlumno = await prisma.participante.count({ where: { tallaPlayeraId: talla.id, tipo: 'alumno' }});
@@ -21,10 +21,12 @@ export async function GET(request: Request) {
       
       return {
         talla: talla.nombre,
+        orden: talla.orden,
         camisas: { alumno: camisasAlumno, docente: camisasDocente, total: camisasAlumno + camisasDocente },
         playeras: { alumno: playerasAlumno, docente: playerasDocente, total: playerasAlumno + playerasDocente }
       };
     }));
+    const stats = allStats.filter(s => s.orden <= 10 || s.camisas.total > 0 || s.playeras.total > 0);
 
     const workbook = new ExcelJS.Workbook();
     

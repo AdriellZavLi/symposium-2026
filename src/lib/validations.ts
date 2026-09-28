@@ -35,7 +35,12 @@ export const registroAlumnoSchema = z.object({
     .optional()
     .or(z.literal("")),
   tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera polo"),
-  tallaCamisa: z.string().optional().or(z.literal("")),
+  tallaCamisa: z
+    .string()
+    .trim()
+    .regex(/^\d+(\.\d+)?$/, "La talla de camisa debe ser un número (ej. 34, 36, 38)")
+    .optional()
+    .or(z.literal("")),
   requiereConstancia: z.boolean().default(true),
 });
 
@@ -72,7 +77,12 @@ export const registroDocenteSchema = z.object({
     .optional()
     .or(z.literal("")),
   tallaPlayera: z.string().min(1, "Debes seleccionar una talla de playera polo"),
-  tallaCamisa: z.string().optional().or(z.literal("")),
+  tallaCamisa: z
+    .string()
+    .trim()
+    .regex(/^\d+(\.\d+)?$/, "La talla de camisa debe ser un número (ej. 34, 36, 38)")
+    .optional()
+    .or(z.literal("")),
   requiereConstancia: z.boolean().default(true),
 });
 
